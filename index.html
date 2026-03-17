@@ -297,7 +297,7 @@ function buildSummary() {
 
   const totalSpend = ENTITY_ORDER.reduce((s, k) => s + (entities[k]?.total_spend || 0), 0);
 
-  const acc = buildAccordion('summary', '', 'Weekly Summary', [], [], fmt.currency(totalSpend), true);
+  const acc = buildAccordion('summary', '', 'Weekly Summary', [], [], fmt.currency(totalSpend), false);
   const bodyInner = acc.querySelector('.acc-body-inner');
   bodyInner.innerHTML = `
     <table class="summary-table">
@@ -542,11 +542,6 @@ ENTITY_ORDER.forEach(key => {
   if (acc) app.appendChild(acc);
 });
 
-// Open summary body after render
-requestAnimationFrame(() => {
-  const firstBody = document.querySelector('.accordion.open .acc-body');
-  if (firstBody) firstBody.style.maxHeight = firstBody.scrollHeight + 'px';
-});
 </script>
 </body>
 </html>
