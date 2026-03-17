@@ -1,8 +1,552 @@
 <!DOCTYPE html>
 <html lang="en">
-<head><meta charset="UTF-8"><title>506 Ramseur — Media Report</title></head>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>506 Ramseur — Paid Media Report</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet">
+<style>
+/* ── Reset & base ─────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: 16px; }
+body {
+  font-family: 'DM Sans', system-ui, sans-serif;
+  background: #f5f4f1;
+  color: #1e1d1b;
+  line-height: 1.5;
+}
+
+/* ── Site header ──────────────────────────────────────────────────── */
+.site-header {
+  background: #1e1d1b;
+  color: #fff;
+  padding: 1.5rem 2rem;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 1rem;
+}
+.site-header h1 {
+  font-size: 1.375rem;
+  font-weight: 700;
+  letter-spacing: -.02em;
+  flex: 1;
+}
+.header-meta {
+  font-size: .8125rem;
+  color: #b0afa9;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: .2rem;
+}
+.header-spend {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #fff;
+}
+
+/* ── Container ────────────────────────────────────────────────────── */
+.container { max-width: 960px; margin: 0 auto; padding: 1.75rem 1.25rem 3rem; }
+
+/* ── Accordion ────────────────────────────────────────────────────── */
+.accordion { border-radius: 10px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,.08); margin-bottom: 1rem; background: #fff; }
+
+.acc-header {
+  display: flex;
+  align-items: center;
+  gap: .75rem;
+  padding: .9rem 1.25rem;
+  cursor: pointer;
+  user-select: none;
+  background: #fff;
+  border: none;
+  width: 100%;
+  text-align: left;
+  transition: background .15s;
+  border-left: 4px solid transparent;
+}
+.acc-header:hover { background: #fafaf8; }
+.accordion.open .acc-header { border-left-color: var(--accent); }
+
+.swatch {
+  width: 12px; height: 12px; border-radius: 50%;
+  flex-shrink: 0;
+  background: var(--accent);
+}
+.acc-name { font-weight: 600; font-size: .9375rem; flex: 1; }
+
+.pills { display: flex; gap: .35rem; flex-wrap: wrap; }
+.pill {
+  font-size: .6875rem; font-weight: 600; letter-spacing: .02em;
+  padding: .15rem .5rem; border-radius: 100px;
+  background: #f0efeb; color: #555;
+}
+
+.chips { display: flex; gap: .5rem; flex-wrap: wrap; }
+.chip {
+  font-size: .75rem; font-weight: 500;
+  padding: .2rem .6rem; border-radius: 6px;
+  background: var(--metric-bg); color: #333;
+}
+
+.spend-badge {
+  font-weight: 700; font-size: .9375rem;
+  white-space: nowrap;
+}
+
+.chevron {
+  width: 18px; height: 18px; flex-shrink: 0;
+  color: #aaa;
+  transition: transform .25s;
+}
+.accordion.open .chevron { transform: rotate(180deg); }
+
+/* ── Accordion body ───────────────────────────────────────────────── */
+.acc-body {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height .35s ease;
+}
+.acc-body-inner {
+  padding: 1.25rem 1.5rem 1.5rem;
+  border-top: 1px solid #f0efeb;
+}
+
+/* ── Warning box ──────────────────────────────────────────────────── */
+.warning-box {
+  background: #fffbeb;
+  border: 1px solid #fbbf24;
+  border-radius: 8px;
+  padding: .65rem 1rem;
+  font-size: .8125rem;
+  color: #78350f;
+  margin-bottom: 1rem;
+}
+
+/* ── At-a-glance metric cards ─────────────────────────────────────── */
+.metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: .65rem;
+  margin-bottom: 1.25rem;
+}
+.metric-card {
+  background: var(--metric-bg);
+  border-radius: 8px;
+  padding: .75rem 1rem;
+}
+.metric-label { font-size: .6875rem; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; color: #666; margin-bottom: .25rem; }
+.metric-value { font-size: 1.125rem; font-weight: 700; color: #1e1d1b; }
+.metric-sub   { font-size: .75rem; color: #888; margin-top: .1rem; }
+
+/* ── Platform sections ────────────────────────────────────────────── */
+.platform-section { margin-bottom: 1.25rem; }
+.platform-label {
+  font-size: .75rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em;
+  color: var(--accent);
+  margin-bottom: .5rem;
+  padding-bottom: .3rem;
+  border-bottom: 1px solid #f0efeb;
+}
+.platform-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: .5rem;
+}
+.prow-item { font-size: .8125rem; }
+.prow-item strong { display: block; font-weight: 700; }
+.prow-item span   { color: #888; font-size: .75rem; }
+
+/* ── Search terms ─────────────────────────────────────────────────── */
+.search-terms-section { margin-top: .5rem; }
+.search-terms-section h4 {
+  font-size: .75rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em;
+  color: #555; margin-bottom: .65rem;
+}
+.search-terms-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+.term-list { list-style: none; }
+.term-list li {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: .35rem .5rem;
+  border-radius: 5px;
+  font-size: .8rem;
+  margin-bottom: .25rem;
+  background: #f8f8f6;
+}
+.term-list li.converted { background: #f0fdf4; }
+.term-list li.negative  { background: #fef2f2; }
+.term-name { flex: 1; margin-right: .5rem; word-break: break-word; }
+.term-meta { font-size: .7rem; color: #888; white-space: nowrap; }
+.term-list li.converted .term-name { color: #15803d; }
+.term-list li.negative  .term-name { color: #b91c1c; }
+
+/* ── Summary table ────────────────────────────────────────────────── */
+.summary-table { width: 100%; border-collapse: collapse; font-size: .8375rem; }
+.summary-table th {
+  text-align: left; font-weight: 600; font-size: .75rem; text-transform: uppercase;
+  letter-spacing: .06em; color: #888; padding: .5rem .75rem; border-bottom: 2px solid #e8e7e3;
+}
+.summary-table td { padding: .6rem .75rem; border-bottom: 1px solid #f0efeb; }
+.summary-table tr:last-child td { border-bottom: none; }
+.summary-table .num { text-align: right; font-variant-numeric: tabular-nums; }
+.summary-table tr.entity-row td:first-child {
+  border-left: 3px solid var(--accent);
+  padding-left: .625rem;
+}
+.summary-footnote { font-size: .75rem; color: #888; margin-top: .5rem; }
+
+/* ── Empty state ──────────────────────────────────────────────────── */
+.empty-state {
+  font-size: .875rem; color: #999; font-style: italic;
+  padding: .5rem 0;
+}
+
+/* ── Responsive ───────────────────────────────────────────────────── */
+@media (max-width: 600px) {
+  .site-header { padding: 1.25rem 1rem; }
+  .chips, .pills { display: none; }
+  .metrics-grid { grid-template-columns: repeat(2, 1fr); }
+  .search-terms-grid { grid-template-columns: 1fr; }
+  .platform-row { grid-template-columns: repeat(2, 1fr); }
+}
+</style>
+</head>
 <body>
+
+<header class="site-header">
   <h1>506 Ramseur — Paid Media Report</h1>
-  <p>Placeholder — full report will appear here after build.py runs.</p>
+  <div class="header-meta">
+    <span id="header-dates"></span>
+    <span id="header-generated"></span>
+    <span class="header-spend" id="header-spend"></span>
+  </div>
+</header>
+
+<div class="container" id="app"></div>
+
+<script>
+// ── Injected data ────────────────────────────────────────────────────────────
+const REPORT = {"date_range": "March 9\u201315, 2026", "generated_date": "March 17, 2026", "total_spend": 1084.35, "entities": {"events_506": {"label": "Events at 506", "platforms": ["Google", "Meta"], "total_spend": 343.169, "total_clicks": 564.0, "total_conversions": 6.0, "cpl": 57.19483333333333, "google": {"spend": 271.539, "impressions": 1064.0, "clicks": 96.0, "conversions": 6.0, "ctr": 0.09022556390977443, "cpc": 2.8285312499999997, "cost_per_conversion": 45.256499999999996, "quality_score": 8.0, "search_impression_share": 0.15765216165413531}, "meta": {"spend": 71.63, "impressions": 8772.0, "clicks": 531.0, "reach": 3294.0, "frequency": 1.1058931921331316, "link_clicks": 468.0, "leads": 0.0, "engagement": 482.0, "cpm": 8.165754673962608, "cpc": 0.15305555555555556, "ctr": 0.0533515731874145, "cost_per_lead": null}, "linkedin": null, "search_terms": {"top": [{"term": "venues durham nc", "clicks": 3, "spend": 8.7153, "impressions": 14, "conversions": 0.0}, {"term": "party venues durham nc", "clicks": 3, "spend": 6.92, "impressions": 3, "conversions": 1.0}, {"term": "event spaces durham nc", "clicks": 2, "spend": 9.3, "impressions": 9, "conversions": 1.0}, {"term": "durham community center rental", "clicks": 2, "spend": 4.14, "impressions": 6, "conversions": 0.0}, {"term": "peerspace durham nc", "clicks": 1, "spend": 1.79, "impressions": 7, "conversions": 0.0}], "negatives": [{"term": "event spaces durham nc", "clicks": 2, "spend": 9.3, "impressions": 9, "conversions": 1.0}, {"term": "venues durham nc", "clicks": 3, "spend": 8.7153, "impressions": 14, "conversions": 0.0}, {"term": "venues durham", "clicks": 1, "spend": 6.92, "impressions": 2, "conversions": 0.0}, {"term": "party venues durham nc", "clicks": 3, "spend": 6.92, "impressions": 3, "conversions": 1.0}, {"term": "outdoor rental space near me", "clicks": 1, "spend": 6.63, "impressions": 2, "conversions": 0.0}]}}, "private_office": {"label": "Private Office", "platforms": ["Google"], "total_spend": 170.9779, "total_clicks": 29.0, "total_conversions": 3.0, "cpl": 56.99263333333334, "google": {"spend": 170.9779, "impressions": 346.0, "clicks": 29.0, "conversions": 3.0, "ctr": 0.0838150289017341, "cpc": 5.895789655172414, "cost_per_conversion": 56.99263333333334, "quality_score": 5.0, "search_impression_share": 0.2562554913294798}, "meta": null, "linkedin": null, "search_terms": {"top": [{"term": "suites for rent near me", "clicks": 2, "spend": 16.64, "impressions": 4, "conversions": 0.0}, {"term": "durham office space for rent", "clicks": 1, "spend": 9.604, "impressions": 3, "conversions": 0.0}, {"term": "small office space for rent durham nc", "clicks": 1, "spend": 9.27, "impressions": 3, "conversions": 0.0}, {"term": "small offices near me", "clicks": 1, "spend": 7.91, "impressions": 3, "conversions": 0.0}, {"term": "office space durham", "clicks": 1, "spend": 6.6669, "impressions": 2, "conversions": 0.0}], "negatives": [{"term": "suites for rent near me", "clicks": 2, "spend": 16.64, "impressions": 4, "conversions": 0.0}, {"term": "rent office space near me", "clicks": 1, "spend": 10.58, "impressions": 1, "conversions": 0.0}, {"term": "durham office space for rent", "clicks": 1, "spend": 9.604, "impressions": 3, "conversions": 0.0}, {"term": "small office space for rent durham nc", "clicks": 1, "spend": 9.27, "impressions": 3, "conversions": 0.0}, {"term": "small offices near me", "clicks": 1, "spend": 7.91, "impressions": 3, "conversions": 0.0}]}}, "catering": {"label": "Catering \u2014 Nerra", "platforms": ["Google", "Meta"], "total_spend": 176.59490000000002, "total_clicks": 174.0, "total_conversions": 10.0, "cpl": 17.65949, "google": {"spend": 169.7649, "impressions": 5252.0, "clicks": 171.0, "conversions": 10.0, "ctr": 0.03255902513328256, "cpc": 0.9927771929824563, "cost_per_conversion": 16.976490000000002, "quality_score": 9.0, "search_impression_share": 0.19058610053313024}, "meta": {"spend": 6.83, "impressions": 159.0, "clicks": 7.0, "reach": 146.0, "frequency": 1.089, "link_clicks": 3.0, "leads": 0.0, "engagement": 3.0, "cpm": 42.9559748427673, "cpc": 2.276666666666667, "ctr": 0.018867924528301886, "cost_per_lead": null}, "linkedin": null, "search_terms": {"top": [{"term": "restaurants near me", "clicks": 31, "spend": 28.57, "impressions": 0, "conversions": 0.0}, {"term": "durham restaurants", "clicks": 7, "spend": 4.3775, "impressions": 0, "conversions": 0.0}, {"term": "nerra restaurant", "clicks": 3, "spend": 5.0167, "impressions": 0, "conversions": 0.0}, {"term": "best restaurants durham", "clicks": 3, "spend": 1.7, "impressions": 0, "conversions": 0.0}, {"term": "catering companies raleigh nc", "clicks": 3, "spend": 1.7637, "impressions": 0, "conversions": 0.0}], "negatives": [{"term": "restaurants near me", "clicks": 31, "spend": 28.57, "impressions": 0, "conversions": 0.0}, {"term": "coquette raleigh", "clicks": 1, "spend": 9.93, "impressions": 0, "conversions": 0.0}, {"term": "the mill raleigh", "clicks": 1, "spend": 8.555, "impressions": 0, "conversions": 0.0}, {"term": "carrabba's apex north carolina", "clicks": 1, "spend": 7.96, "impressions": 0, "conversions": 0.0}, {"term": "nikos durham", "clicks": 1, "spend": 6.8034, "impressions": 0, "conversions": 0.0}]}}, "oak_and_glow": {"label": "Oak & Glow Med Spa", "platforms": ["Google", "Meta"], "total_spend": 194.3034, "total_clicks": 66.0, "total_conversions": 3.0, "cpl": 64.76780000000001, "google": {"spend": 145.1134, "impressions": 462.0, "clicks": 29.0, "conversions": 0.0, "ctr": 0.06277056277056277, "cpc": 5.003910344827586, "cost_per_conversion": null, "quality_score": 5.0, "search_impression_share": 0.2470809523809524}, "meta": {"spend": 49.19, "impressions": 3052.0, "clicks": 53.0, "reach": 972.0, "frequency": 1.2575273176761432, "link_clicks": 37.0, "leads": 3.0, "engagement": 38.0, "cpm": 16.117300131061597, "cpc": 1.3294594594594593, "ctr": 0.012123197903014417, "cost_per_lead": 16.396666666666665}, "linkedin": null, "search_terms": {"top": [{"term": "oak and glow med spa", "clicks": 5, "spend": 13.24, "impressions": 5, "conversions": 0.0}, {"term": "nuvee aesthetics photos", "clicks": 2, "spend": 13.29, "impressions": 2, "conversions": 0.0}, {"term": "facial balancing near me", "clicks": 1, "spend": 6.48, "impressions": 3, "conversions": 0.0}, {"term": "med spa that takes insurance", "clicks": 1, "spend": 6.64, "impressions": 2, "conversions": 0.0}, {"term": "esthetician durham nc", "clicks": 1, "spend": 5.79, "impressions": 2, "conversions": 0.0}], "negatives": [{"term": "nuvee aesthetics photos", "clicks": 2, "spend": 13.29, "impressions": 2, "conversions": 0.0}, {"term": "oak and glow med spa", "clicks": 5, "spend": 13.24, "impressions": 5, "conversions": 0.0}, {"term": "med spa that takes insurance", "clicks": 1, "spend": 6.64, "impressions": 2, "conversions": 0.0}, {"term": "facial balancing near me", "clicks": 1, "spend": 6.48, "impressions": 3, "conversions": 0.0}, {"term": "neck lift treatment", "clicks": 1, "spend": 6.33, "impressions": 1, "conversions": 0.0}]}}, "smashing_boxes": {"label": "Smashing Boxes", "platforms": ["Google", "LinkedIn"], "total_spend": 199.3095, "total_clicks": 403.0, "total_conversions": 4.0, "cpl": 49.827375, "google": {"spend": 116.1995, "impressions": 24342.0, "clicks": 390.0, "conversions": 4.0, "ctr": 0.016021690904609316, "cpc": 0.2979474358974359, "cost_per_conversion": 29.049875, "quality_score": null, "search_impression_share": 0.0999}, "meta": null, "linkedin": {"spend": 83.11, "impressions": 20670.0, "clicks": 13.0, "conversions": 0.0, "leads": 0.0, "form_opens": 0.0, "reach": 1942.0, "engagement_rate": 0.0007879390420899854, "cpc": 6.393076923076923, "cpm": 4.020803096274794, "ctr": 0.0006289308176100629}, "search_terms": null}, "coworking": {"label": "Coworking", "platforms": [], "total_spend": 0, "total_clicks": 0, "total_conversions": 0, "cpl": null, "google": null, "meta": null, "linkedin": null, "search_terms": {"top": [], "negatives": []}}}};
+
+// ── Entity style config ──────────────────────────────────────────────────────
+const ENTITY_STYLES = {
+  events_506:    { accent: '#185fa5', metricBg: '#eef4fb' },
+  private_office:{ accent: '#c87520', metricBg: '#fff3e6' },
+  catering:      { accent: '#534ab7', metricBg: '#f2f0fc' },
+  oak_and_glow:  { accent: '#3b6d11', metricBg: '#eef6e8' },
+  smashing_boxes:{ accent: '#993556', metricBg: '#fdf0f4' },
+  coworking:     { accent: '#c87520', metricBg: '#fef4e8' },
+};
+
+const ENTITY_ORDER = ['events_506','private_office','catering','oak_and_glow','smashing_boxes','coworking'];
+
+// ── Formatters ───────────────────────────────────────────────────────────────
+const fmt = {
+  currency: v => v == null ? '—' : '$' + (+v).toLocaleString('en-US', {minimumFractionDigits:2,maximumFractionDigits:2}),
+  int:      v => v == null ? '—' : (+v).toLocaleString('en-US', {maximumFractionDigits:0}),
+  pct:      v => v == null ? '—' : (+v*100).toFixed(1) + '%',
+  dec:      (v,d=2) => v == null ? '—' : (+v).toFixed(d),
+};
+
+// ── Header ───────────────────────────────────────────────────────────────────
+document.getElementById('header-dates').textContent     = REPORT.date_range;
+document.getElementById('header-generated').textContent = 'Generated ' + REPORT.generated_date;
+document.getElementById('header-spend').textContent     = 'Total spend: ' + fmt.currency(REPORT.total_spend);
+
+// ── Build UI ─────────────────────────────────────────────────────────────────
+const app = document.getElementById('app');
+
+function el(tag, cls, inner) {
+  const e = document.createElement(tag);
+  if (cls)   e.className = cls;
+  if (inner) e.innerHTML = inner;
+  return e;
+}
+
+function metricCard(label, value, sub) {
+  const card = el('div', 'metric-card');
+  card.innerHTML = `<div class="metric-label">${label}</div><div class="metric-value">${value}</div>${sub ? `<div class="metric-sub">${sub}</div>` : ''}`;
+  return card;
+}
+
+function pRowItem(label, value) {
+  return `<div class="prow-item"><strong>${value}</strong><span>${label}</span></div>`;
+}
+
+// ── Summary accordion ────────────────────────────────────────────────────────
+function buildSummary() {
+  const entities = REPORT.entities;
+  const rows = ENTITY_ORDER.map(key => {
+    const e   = entities[key];
+    const sty = ENTITY_STYLES[key];
+    if (!e) return '';
+    const cpl = e.cpl != null ? fmt.currency(e.cpl) : '—';
+    return `
+      <tr class="entity-row" style="--accent:${sty.accent};--metric-bg:${sty.metricBg}">
+        <td><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:${sty.accent};margin-right:.4rem;vertical-align:middle;"></span>${e.label}</td>
+        <td>${e.platforms.join(', ') || '—'}</td>
+        <td class="num">${fmt.currency(e.total_spend)}</td>
+        <td class="num">${fmt.int(e.total_clicks)}</td>
+        <td class="num">${fmt.dec(e.total_conversions)}</td>
+        <td class="num">${cpl}</td>
+      </tr>`;
+  }).join('');
+
+  const totalSpend = ENTITY_ORDER.reduce((s, k) => s + (entities[k]?.total_spend || 0), 0);
+
+  const acc = buildAccordion('summary', '', 'Weekly Summary', [], [], fmt.currency(totalSpend), true);
+  const bodyInner = acc.querySelector('.acc-body-inner');
+  bodyInner.innerHTML = `
+    <table class="summary-table">
+      <thead><tr>
+        <th>Entity</th><th>Platforms</th>
+        <th class="num">Spend</th><th class="num">Clicks</th>
+        <th class="num">Conv.</th><th class="num">CPL</th>
+      </tr></thead>
+      <tbody>${rows}</tbody>
+    </table>
+    <p class="summary-footnote">* Catering conversion data may be unreliable — form lead attribution varies by window.</p>
+  `;
+  return acc;
+}
+
+// ── Entity accordion ─────────────────────────────────────────────────────────
+function buildEntityAccordion(key) {
+  const e   = REPORT.entities[key];
+  const sty = ENTITY_STYLES[key];
+  if (!e) return null;
+
+  const chips = [];
+  if (e.total_clicks)      chips.push(`${fmt.int(e.total_clicks)} clicks`);
+  if (e.total_conversions) chips.push(`${fmt.dec(e.total_conversions)} conv.`);
+  if (e.cpl != null)       chips.push(`${fmt.currency(e.cpl)} CPL`);
+
+  const acc = buildAccordion(key, sty.accent, e.label, e.platforms, chips, fmt.currency(e.total_spend));
+  acc.style.setProperty('--metric-bg', sty.metricBg);
+  const bodyInner = acc.querySelector('.acc-body-inner');
+  bodyInner.innerHTML = buildEntityBody(key, e, sty);
+  return acc;
+}
+
+function buildEntityBody(key, e, sty) {
+  let html = '';
+
+  // Warning box
+  if (key === 'catering' || key === 'smashing_boxes') {
+    html += `<div class="warning-box">⚠ Conversion data may be unreliable for this entity — verify in platform dashboards before reporting externally.</div>`;
+  }
+
+  // No data state
+  const hasAny = e.google || e.meta || e.linkedin;
+  if (!hasAny) {
+    return html + `<p class="empty-state">No active campaigns this period.</p>`;
+  }
+
+  // At-a-glance metrics
+  html += `<div class="metrics-grid">`;
+
+  // Google primary metrics
+  if (e.google) {
+    const g = e.google;
+    html += metricCard('Spend', fmt.currency(g.spend), 'Google').outerHTML;
+    html += metricCard('Clicks', fmt.int(g.clicks), `CTR ${fmt.pct(g.ctr)}`).outerHTML;
+    html += metricCard('Conversions', fmt.dec(g.conversions), `CPL ${fmt.currency(g.cost_per_conversion)}`).outerHTML;
+  } else if (e.meta) {
+    const m = e.meta;
+    html += metricCard('Spend', fmt.currency(m.spend), 'Meta').outerHTML;
+    html += metricCard('Link Clicks', fmt.int(m.link_clicks), `CTR ${fmt.pct(m.ctr)}`).outerHTML;
+    html += metricCard('Leads', fmt.int(m.leads), `CPL ${fmt.currency(m.cost_per_lead)}`).outerHTML;
+  } else if (e.linkedin) {
+    const l = e.linkedin;
+    html += metricCard('Spend', fmt.currency(l.spend), 'LinkedIn').outerHTML;
+    html += metricCard('Clicks', fmt.int(l.clicks), `CTR ${fmt.pct(l.ctr)}`).outerHTML;
+    html += metricCard('Leads', fmt.int(l.leads), `CPM ${fmt.currency(l.cpm)}`).outerHTML;
+  }
+
+  // Reach, CPM, Impressions
+  const reach = (e.meta?.reach) || (e.linkedin?.reach) || null;
+  const impr  = (e.google?.impressions) || (e.meta?.impressions) || (e.linkedin?.impressions);
+  const cpm   = (e.google && e.google.impressions ? (e.google.spend*1000/e.google.impressions) : null)
+              || e.meta?.cpm || e.linkedin?.cpm;
+
+  html += metricCard('Impressions', fmt.int(impr), null).outerHTML;
+  html += metricCard('Reach', fmt.int(reach), null).outerHTML;
+  html += metricCard('CPM', fmt.currency(cpm), null).outerHTML;
+  html += `</div>`; // /metrics-grid
+
+  // Per-platform detail rows
+  if (e.google) {
+    const g = e.google;
+    html += `
+    <div class="platform-section">
+      <div class="platform-label" style="color:${sty.accent}">Google Ads</div>
+      <div class="platform-row">
+        ${pRowItem('Spend', fmt.currency(g.spend))}
+        ${pRowItem('Impressions', fmt.int(g.impressions))}
+        ${pRowItem('Clicks', fmt.int(g.clicks))}
+        ${pRowItem('CTR', fmt.pct(g.ctr))}
+        ${pRowItem('CPC', fmt.currency(g.cpc))}
+        ${pRowItem('Conversions', fmt.dec(g.conversions))}
+        ${pRowItem('CPL', fmt.currency(g.cost_per_conversion))}
+        ${pRowItem('Quality Score', g.quality_score != null ? fmt.dec(g.quality_score,1) : '—')}
+        ${pRowItem('Impr. Share', g.search_impression_share != null ? fmt.pct(g.search_impression_share) : '—')}
+      </div>
+    </div>`;
+  }
+
+  if (e.meta) {
+    const m = e.meta;
+    html += `
+    <div class="platform-section">
+      <div class="platform-label" style="color:${sty.accent}">Meta</div>
+      <div class="platform-row">
+        ${pRowItem('Spend', fmt.currency(m.spend))}
+        ${pRowItem('Impressions', fmt.int(m.impressions))}
+        ${pRowItem('Reach', fmt.int(m.reach))}
+        ${pRowItem('Frequency', m.frequency != null ? fmt.dec(m.frequency,2) : '—')}
+        ${pRowItem('Link Clicks', fmt.int(m.link_clicks))}
+        ${pRowItem('Leads', fmt.int(m.leads))}
+        ${pRowItem('CPM', fmt.currency(m.cpm))}
+        ${pRowItem('CPC', fmt.currency(m.cpc))}
+        ${pRowItem('CTR', fmt.pct(m.ctr))}
+        ${pRowItem('CPL', fmt.currency(m.cost_per_lead))}
+        ${pRowItem('Engagement', fmt.int(m.engagement))}
+      </div>
+    </div>`;
+  }
+
+  if (e.linkedin) {
+    const l = e.linkedin;
+    html += `
+    <div class="platform-section">
+      <div class="platform-label" style="color:${sty.accent}">LinkedIn</div>
+      <div class="platform-row">
+        ${pRowItem('Spend', fmt.currency(l.spend))}
+        ${pRowItem('Impressions', fmt.int(l.impressions))}
+        ${pRowItem('Reach', fmt.int(l.reach))}
+        ${pRowItem('Clicks', fmt.int(l.clicks))}
+        ${pRowItem('CTR', fmt.pct(l.ctr))}
+        ${pRowItem('CPC', fmt.currency(l.cpc))}
+        ${pRowItem('CPM', fmt.currency(l.cpm))}
+        ${pRowItem('Conversions', fmt.int(l.conversions))}
+        ${pRowItem('Leads (1-click)', fmt.int(l.leads))}
+        ${pRowItem('Form Opens', fmt.int(l.form_opens))}
+        ${pRowItem('Eng. Rate', l.engagement_rate != null ? fmt.pct(l.engagement_rate) : '—')}
+      </div>
+    </div>`;
+  }
+
+  // Search terms
+  if (e.search_terms === null) {
+    html += `<p class="empty-state">[PMax — no keyword data available]</p>`;
+  } else if (e.search_terms && (e.search_terms.top.length || e.search_terms.negatives.length)) {
+    html += buildSearchTerms(e.search_terms, sty);
+  }
+
+  return html;
+}
+
+function buildSearchTerms(st, sty) {
+  function termLi(t, cls) {
+    const conv = t.conversions > 0 ? ' converted' : '';
+    return `<li class="${cls}${t.conversions > 0 ? ' converted' : ''}">
+      <span class="term-name">${t.term}</span>
+      <span class="term-meta">${t.clicks} clk · $${(+t.spend).toFixed(2)}</span>
+    </li>`;
+  }
+
+  const topHtml = st.top.map(t => termLi(t, '')).join('');
+  const negHtml = st.negatives.map(t => termLi(t, 'negative')).join('');
+
+  return `
+  <div class="search-terms-section">
+    <div class="search-terms-grid">
+      <div>
+        <h4>Top search terms — suggest as keywords</h4>
+        <ul class="term-list">${topHtml || '<li style="color:#999;font-style:italic">No data</li>'}</ul>
+      </div>
+      <div>
+        <h4>Search terms to review — negative keyword candidates</h4>
+        <ul class="term-list">${negHtml || '<li style="color:#999;font-style:italic">No data</li>'}</ul>
+      </div>
+    </div>
+  </div>`;
+}
+
+// ── Accordion builder ────────────────────────────────────────────────────────
+function buildAccordion(key, accent, name, platforms, chips, spend, startOpen=false) {
+  const sty = ENTITY_STYLES[key] || {};
+  const acc = el('div', 'accordion' + (startOpen ? ' open' : ''));
+  if (accent) acc.style.setProperty('--accent', accent);
+  else if (sty.accent) acc.style.setProperty('--accent', sty.accent);
+  if (sty.metricBg) acc.style.setProperty('--metric-bg', sty.metricBg);
+
+  const swatchHtml = accent ? `<div class="swatch"></div>` : '';
+
+  const pillsHtml = platforms.length
+    ? `<div class="pills">${platforms.map(p=>`<span class="pill">${p}</span>`).join('')}</div>`
+    : '';
+
+  const chipsHtml = chips.length
+    ? `<div class="chips">${chips.map(c=>`<span class="chip">${c}</span>`).join('')}</div>`
+    : '';
+
+  const hdr = el('button', 'acc-header');
+  hdr.setAttribute('aria-expanded', startOpen ? 'true' : 'false');
+  hdr.innerHTML = `
+    ${swatchHtml}
+    <span class="acc-name">${name}</span>
+    ${pillsHtml}
+    ${chipsHtml}
+    <span class="spend-badge">${spend}</span>
+    <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="6 9 12 15 18 9"></polyline>
+    </svg>
+  `;
+
+  const body = el('div', 'acc-body');
+  const bodyInner = el('div', 'acc-body-inner');
+  body.appendChild(bodyInner);
+
+  acc.appendChild(hdr);
+  acc.appendChild(body);
+
+  if (startOpen) {
+    // Set after DOM insertion
+    requestAnimationFrame(() => { body.style.maxHeight = body.scrollHeight + 'px'; });
+  }
+
+  hdr.addEventListener('click', () => {
+    const isOpen = acc.classList.contains('open');
+    if (isOpen) {
+      acc.classList.remove('open');
+      body.style.maxHeight = '0';
+      hdr.setAttribute('aria-expanded', 'false');
+    } else {
+      acc.classList.add('open');
+      body.style.maxHeight = body.scrollHeight + 'px';
+      hdr.setAttribute('aria-expanded', 'true');
+    }
+  });
+
+  return acc;
+}
+
+// ── Render all ───────────────────────────────────────────────────────────────
+app.appendChild(buildSummary());
+ENTITY_ORDER.forEach(key => {
+  const acc = buildEntityAccordion(key);
+  if (acc) app.appendChild(acc);
+});
+
+// Open summary body after render
+requestAnimationFrame(() => {
+  const firstBody = document.querySelector('.accordion.open .acc-body');
+  if (firstBody) firstBody.style.maxHeight = firstBody.scrollHeight + 'px';
+});
+</script>
 </body>
 </html>
