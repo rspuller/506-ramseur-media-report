@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Tripleseat Auth</title>
+<style>
+body{font-family:system-ui,sans-serif;max-width:540px;margin:80px auto;padding:0 1rem;background:#f5f4f1;color:#1e1d1b}
+h2{font-size:1.25rem;margin-bottom:1rem}
+.box{background:#fff;border-radius:10px;padding:1.5rem;box-shadow:0 1px 4px rgba(0,0,0,.1)}
+code{display:block;word-break:break-all;font-size:.85rem;background:#f0efeb;padding:.75rem;border-radius:6px;margin:1rem 0}
+button{background:#185fa5;color:#fff;border:none;padding:.6rem 1.2rem;border-radius:6px;cursor:pointer;font-size:.9rem}
+button:active{opacity:.8}
+.done{color:#15803d;font-weight:600;display:none}
+</style>
+</head>
+<body>
+<div class="box">
+  <h2>Tripleseat Authorization</h2>
+  <p>Your authorization code:</p>
+  <code id="code"></code>
+  <button onclick="copy()">Copy code</button>
+  <span class="done" id="done">Copied!</span>
+  <p style="margin-top:1rem;font-size:.85rem;color:#666">Paste this into the terminal where <code style="display:inline;padding:.1rem .3rem">ts_auth_helper.py</code> is waiting.</p>
+</div>
+<script>
+  const params = new URLSearchParams(location.search);
+  const code = params.get("code") || "(no code found in URL)";
+  document.getElementById("code").textContent = code;
+  function copy(){
+    navigator.clipboard.writeText(code);
+    document.getElementById("done").style.display="inline";
+  }
+</script>
+</body>
+</html>
