@@ -241,11 +241,11 @@ body {
 .leads-dropdown-btn:hover { border-color: var(--accent); }
 .leads-dropdown-btn svg { width: 14px; height: 14px; color: #999; flex-shrink: 0; }
 .leads-dropdown-list {
-  position: absolute; top: calc(100% + 4px); left: 0;
+  position: fixed;
   background: #fff; border: 1px solid #e0e0e0; border-radius: 8px;
   box-shadow: 0 4px 16px rgba(0,0,0,.1);
   min-width: 220px; max-height: 220px; overflow-y: auto;
-  z-index: 100; display: none;
+  z-index: 1000; display: none;
 }
 .leads-dropdown-list.open { display: block; }
 .leads-dropdown-item {
@@ -610,6 +610,9 @@ function initLeadsDropdown(leads) {
 
   btn.addEventListener('click', e => {
     e.stopPropagation();
+    const rect = btn.getBoundingClientRect();
+    list.style.top  = (rect.bottom + 4) + 'px';
+    list.style.left = rect.left + 'px';
     list.classList.toggle('open');
   });
 
