@@ -543,36 +543,28 @@ function buildEntityBody(key, e, sty) {
     return html + `<p class="empty-state">No active campaigns this period.</p>`;
   }
 
-  // At-a-glance metrics
+  // At-a-glance metrics — blended across all active platforms
   html += `<div class="metrics-grid">`;
 
-  // Google primary metrics
-  if (e.google) {
-    const g = e.google;
-    html += metricCard('Spend', fmt.currency(g.spend), 'Google').outerHTML;
-    html += metricCard('Clicks', fmt.int(g.clicks), `CTR ${fmt.pct(g.ctr)}`).outerHTML;
-    html += metricCard('Conversions', fmt.dec(g.conversions), `CPL ${fmt.currency(g.cost_per_conversion)}`).outerHTML;
-  } else if (e.meta) {
-    const m = e.meta;
-    html += metricCard('Spend', fmt.currency(m.spend), 'Meta').outerHTML;
-    html += metricCard('Link Clicks', fmt.int(m.link_clicks), `CTR ${fmt.pct(m.ctr)}`).outerHTML;
-    html += metricCard('Leads', fmt.int(m.leads), `CPL ${fmt.currency(m.cost_per_lead)}`).outerHTML;
-  } else if (e.linkedin) {
-    const l = e.linkedin;
-    html += metricCard('Spend', fmt.currency(l.spend), 'LinkedIn').outerHTML;
-    html += metricCard('Clicks', fmt.int(l.clicks), `CTR ${fmt.pct(l.ctr)}`).outerHTML;
-    html += metricCard('Leads', fmt.int(l.leads), `CPM ${fmt.currency(l.cpm)}`).outerHTML;
+  const blendSpend = e.total_spend;
+  const blendClicks = e.total_clicks;
+  const blendConv = e.total_conversions;
+  const blendImpr = (e.google?.impressions || 0) + (e.meta?.impressions || 0) + (e.linkedin?.impressions || 0);
+  const blendCTR = blendImpr ? blendClicks / blendImpr : null;
+  const blendCPL = blendConv ? blendSpend / blendConv : null;
+  const blendReach = Math.max(e.meta?.reach || 0, e.linkedin?.reach || 0) || null;
+  const blendCPM = blendImpr ? (blendSpend * 1000 / blendImpr) : null;
+
+  html += metricCard('Spend', fmt.currency(blendSpend), e.platforms.join(' + ')).outerHTML;
+  html += metricCard('Clicks', fmt.int(blendClicks), `CTR ${fmt.pct(blendCTR)}`).outerHTML;
+  if (key !== 'events_506') {
+    html += metricCard('Conversions', fmt.dec(blendConv), `CPL ${fmt.currency(blendCPL)}`).outerHTML;
+  } else {
+    html += metricCard('Conversions', fmt.dec(blendConv), null).outerHTML;
   }
-
-  // Reach, CPM, Impressions
-  const reach = (e.meta?.reach) || (e.linkedin?.reach) || null;
-  const impr  = (e.google?.impressions) || (e.meta?.impressions) || (e.linkedin?.impressions);
-  const cpm   = (e.google && e.google.impressions ? (e.google.spend*1000/e.google.impressions) : null)
-              || e.meta?.cpm || e.linkedin?.cpm;
-
-  html += metricCard('Impressions', fmt.int(impr), null).outerHTML;
-  html += metricCard('Reach', fmt.int(reach), null).outerHTML;
-  html += metricCard('CPM', fmt.currency(cpm), null).outerHTML;
+  html += metricCard('Impressions', fmt.int(blendImpr), null).outerHTML;
+  html += metricCard('Reach', fmt.int(blendReach), null).outerHTML;
+  html += metricCard('CPM', fmt.currency(blendCPM), null).outerHTML;
   html += `</div>`; // /metrics-grid
 
   // Per-platform detail rows — broken out by campaign
@@ -596,11 +588,11 @@ function buildEntityBody(key, e, sty) {
       ${pRowItem('Reach', fmt.int(c.reach))}
       ${pRowItem('Frequency', c.frequency != null ? fmt.dec(c.frequency,2) : '—')}
       ${pRowItem('Link Clicks', fmt.int(c.link_clicks))}
-      ${pRowItem('Leads', fmt.int(c.leads))}
+      ${key !== 'events_506' ? pRowItem('Leads', fmt.int(c.leads)) : ''}
       ${pRowItem('CPM', fmt.currency(c.cpm))}
       ${pRowItem('CPC', fmt.currency(c.cpc))}
       ${pRowItem('CTR', fmt.pct(c.ctr))}
-      ${pRowItem('CPL', fmt.currency(c.cost_per_lead))}
+      ${key !== 'events_506' ? pRowItem('CPL', fmt.currency(c.cost_per_lead)) : ''}
       ${pRowItem('Engagement', fmt.int(c.engagement))}
     </div>`;
   }
@@ -659,15 +651,7 @@ function buildEntityBody(key, e, sty) {
     html += `</div>`;
   }
 
-  // Search terms — only show for entities without Meta (i.e. Google-only)
-  const hasMeta = e.meta != null;
-  if (!hasMeta) {
-    if (e.search_terms === null) {
-      html += `<p class="empty-state">[PMax — no keyword data available]</p>`;
-    } else if (e.search_terms && (e.search_terms.top.length || e.search_terms.negatives.length)) {
-      html += buildSearchTerms(e.search_terms, sty);
-    }
-  }
+  // Search terms removed from paid ads section per user request
 
   // Tripleseat leads — Events at 506 only
   if (key === 'events_506') {
