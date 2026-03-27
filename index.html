@@ -1382,10 +1382,10 @@ function buildExecutiveSummary() {
   html += `<thead><tr>
     <th>Entity</th>
     <th>New Leads</th>
-    <th>Revenue</th>
-    <th>Ad Spend</th>
-    <th>ROAS</th>
     <th>Leads vs Prev</th>
+    <th>Ad Spend</th>
+    <th>Revenue</th>
+    <th>ROAS</th>
   </tr></thead>`;
   html += `<tbody>`;
 
@@ -1409,10 +1409,10 @@ function buildExecutiveSummary() {
     html += `<tr>
       <td><span class="entity-dot" style="background:${accent}"></span><span class="entity-name">${r.cfg.label}</span></td>
       <td>${fmt.int(r.nl)}</td>
-      <td>${r.rev > 0 ? fmt.currency(r.rev) : '<span style="color:#bbb">—</span>'}</td>
-      <td>${r.spend > 0 ? fmt.currency(r.spend) : '<span style="color:#bbb">—</span>'}</td>
-      <td>${entityROAS}</td>
       <td>${wowHtml}</td>
+      <td>${r.spend > 0 ? fmt.currency(r.spend) : '<span style="color:#bbb">—</span>'}</td>
+      <td>${r.rev > 0 ? fmt.currency(r.rev) : '<span style="color:#bbb">—</span>'}</td>
+      <td>${entityROAS}</td>
     </tr>`;
   });
 
