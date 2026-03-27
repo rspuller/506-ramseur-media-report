@@ -829,10 +829,13 @@ function openHsLeadModal(lead) {
 }
 
 function openOrnLeadModal(lead) {
+  const statusDisplay = lead.status === 'active'
+    ? '<span style="color:#22c55e;font-weight:700">CLOSED WON</span>'
+    : lead.status;
   const fields = [
     ['Created',  lead.created],
     ['Email',    lead.email],
-    ['Status',   lead.status],
+    ['Status',   statusDisplay],
     ['Source',   lead.source],
   ];
   if (lead.status === 'active' && lead.membership_type) {
