@@ -533,7 +533,6 @@ body {
   <div class="header-meta">
     <span id="header-dates"></span>
     <span id="header-generated"></span>
-    <span class="header-spend" id="header-spend"></span>
   </div>
 </header>
 
@@ -579,7 +578,6 @@ const fmt = {
 // ── Header ───────────────────────────────────────────────────────────────────
 document.getElementById('header-dates').textContent     = REPORT.date_range;
 document.getElementById('header-generated').textContent = 'Generated ' + REPORT.generated_date;
-document.getElementById('header-spend').textContent     = 'Total spend: ' + fmt.currency(REPORT.total_spend);
 
 // ── Build UI ─────────────────────────────────────────────────────────────────
 const app = document.getElementById('app');
