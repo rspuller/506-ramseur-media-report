@@ -389,6 +389,33 @@ body {
   gap: .5rem; margin-top: .25rem;
 }
 
+/* ── Collapsible top-level sections ───────────────────────────────── */
+.section-toggle {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  cursor: pointer;
+  user-select: none;
+  padding: .25rem 0;
+  margin-bottom: 1rem;
+}
+.section-toggle h2 { margin: 0; }
+.section-toggle .section-chevron {
+  width: 20px; height: 20px; color: #aaa;
+  transition: transform .25s;
+  flex-shrink: 0;
+}
+.section-toggle.open .section-chevron { transform: rotate(180deg); }
+.section-content {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height .4s ease;
+}
+.section-content.open {
+  max-height: none;
+  overflow: visible;
+}
+
 /* ── Funnel grid (4 across on desktop, 2 on mobile) ──────────────── */
 .funnel-grid {
   display: grid;
@@ -661,50 +688,6 @@ function buildEntityBody(key, e, sty) {
   }
 
   // Search terms removed from paid ads section per user request
-
-  // Sales funnel — per-entity labels
-  const FUNNEL_LABELS = {
-    events_506:     ['New Leads', 'Proposals Sent', 'Events Booked', 'Revenue Collected'],
-    catering:       ['New Leads', 'Proposals Sent', 'Orders Placed', 'Revenue Collected'],
-    smashing_boxes: ['New Leads', 'Proposals Sent', 'Sales Made', 'Revenue Collected'],
-    private_office: ['New Leads', 'Tours Scheduled', 'Memberships Sold', 'MRR Generated'],
-    coworking:      ['New Leads', 'Tours Scheduled', 'Memberships Sold', 'MRR Generated'],
-    oak_and_glow:   ['New Leads', 'Consultation Booked', 'Sales Made', 'Revenue Collected'],
-  };
-
-  const fLabels = FUNNEL_LABELS[key];
-  if (fLabels && e.funnel) {
-    const f = e.funnel;
-    html += `<div class="section-subtitle" style="margin-top:1.2rem;margin-bottom:.4rem;font-size:.85rem;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:#888;">Sales Funnel</div>`;
-    html += `<div class="funnel-grid">`;
-    html += metricCard(fLabels[0], fmt.int(f.new_leads), null).outerHTML;
-    html += metricCard(fLabels[1], fmt.int(f.proposals_sent), null).outerHTML;
-    html += metricCard(fLabels[2], fmt.int(f.events_booked), null).outerHTML;
-    html += metricCard(fLabels[3], fmt.currency(f.revenue_collected), null).outerHTML;
-    html += `</div>`;
-  }
-
-  if (key === 'events_506') {
-    html += buildLeadsSection(Array.isArray(e.leads) ? e.leads : [], {
-      label:    'Event Leads',
-      idPrefix: 'leads',
-    });
-  }
-
-  if (key === 'catering') {
-    html += buildLeadsSection(Array.isArray(e.leads) ? e.leads : [], {
-      label:    'Catering Leads',
-      idPrefix: 'catering-leads',
-    });
-  }
-
-  // Coworking Office leads — Private Office only
-  if (key === 'private_office') {
-    html += buildLeadsSection(Array.isArray(e.office_leads) ? e.office_leads : [], {
-      label:    'Coworking Office Leads',
-      idPrefix: 'office-leads',
-    });
-  }
 
   return html;
 }
@@ -1034,22 +1017,137 @@ function buildSeoAccordion(entity) {
   return acc;
 }
 
+// ── Funnel accordion builder ─────────────────────────────────────────────────
+const FUNNEL_LABELS = {
+  events_506:     ['New Leads', 'Proposals Sent', 'Events Booked', 'Revenue Collected'],
+  catering:       ['New Leads', 'Proposals Sent', 'Orders Placed', 'Revenue Collected'],
+  office_cowork:  ['New Leads', 'Tours Scheduled', 'Memberships Sold', 'MRR Generated'],
+  oak_and_glow:   ['New Leads', 'Consultation Booked', 'Sales Made', 'Revenue Collected'],
+  smashing_boxes: ['New Leads', 'Proposals Sent', 'Sales Made', 'Revenue Collected'],
+};
+
+const FUNNEL_ORDER = [
+  { key: 'events_506',    label: 'Events at 506',       funnelKey: 'events_506',    leadsKey: 'leads',    leadsLabel: 'Event Leads',    leadsPrefix: 'leads' },
+  { key: 'catering',      label: 'Catering — Nerra',    funnelKey: 'catering',      leadsKey: 'leads',    leadsLabel: 'Catering Leads', leadsPrefix: 'catering-leads' },
+  { key: 'office_cowork', label: 'Private Office & Coworking', funnelKey: 'office_cowork', leadsKey: null, leadsLabel: null, leadsPrefix: null },
+  { key: 'oak_and_glow',  label: 'Oak & Glow Med Spa',  funnelKey: 'oak_and_glow',  leadsKey: null, leadsLabel: null, leadsPrefix: null },
+  { key: 'smashing_boxes',label: 'Smashing Boxes',      funnelKey: 'smashing_boxes', leadsKey: null, leadsLabel: null, leadsPrefix: null },
+];
+
+function buildFunnelAccordion(cfg) {
+  const sty = ENTITY_STYLES[cfg.key] || ENTITY_STYLES['private_office'];
+  const entities = REPORT.entities;
+
+  // Merge funnels for office_cowork
+  let funnel;
+  if (cfg.key === 'office_cowork') {
+    const po = entities.private_office?.funnel || {};
+    const cw = entities.coworking?.funnel || {};
+    funnel = {
+      new_leads: (po.new_leads || 0) + (cw.new_leads || 0),
+      proposals_sent: (po.proposals_sent || 0) + (cw.proposals_sent || 0),
+      events_booked: (po.events_booked || 0) + (cw.events_booked || 0),
+      revenue_collected: (po.revenue_collected || 0) + (cw.revenue_collected || 0),
+    };
+  } else {
+    funnel = entities[cfg.key]?.funnel || {};
+  }
+
+  const fLabels = FUNNEL_LABELS[cfg.funnelKey];
+  const chips = [];
+  if (funnel.new_leads) chips.push(`${funnel.new_leads} leads`);
+  if (funnel.revenue_collected) chips.push(fmt.currency(funnel.revenue_collected));
+
+  const acc = buildAccordion(cfg.key + '_funnel', sty.accent, cfg.label, [], chips, '');
+  acc.style.setProperty('--metric-bg', sty.metricBg);
+  const badge = acc.querySelector('.spend-badge');
+  if (badge) badge.style.display = 'none';
+
+  let html = '';
+  html += `<div class="funnel-grid">`;
+  html += metricCard(fLabels[0], fmt.int(funnel.new_leads), null).outerHTML;
+  html += metricCard(fLabels[1], fmt.int(funnel.proposals_sent), null).outerHTML;
+  html += metricCard(fLabels[2], fmt.int(funnel.events_booked), null).outerHTML;
+  html += metricCard(fLabels[3], fmt.currency(funnel.revenue_collected), null).outerHTML;
+  html += `</div>`;
+
+  // Leads dropdown if applicable
+  if (cfg.leadsKey && entities[cfg.key]) {
+    const leads = Array.isArray(entities[cfg.key][cfg.leadsKey]) ? entities[cfg.key][cfg.leadsKey] : [];
+    html += buildLeadsSection(leads, { label: cfg.leadsLabel, idPrefix: cfg.leadsPrefix });
+  }
+
+  // Office leads for combined section
+  if (cfg.key === 'office_cowork' && entities.private_office) {
+    const offLeads = Array.isArray(entities.private_office.office_leads) ? entities.private_office.office_leads : [];
+    html += buildLeadsSection(offLeads, { label: 'Coworking Office Leads', idPrefix: 'office-leads' });
+  }
+
+  acc.querySelector('.acc-body-inner').innerHTML = html;
+  return acc;
+}
+
+// ── Collapsible section builder ─────────────────────────────────────────────
+function buildCollapsibleSection(title, id) {
+  const wrapper = el('div', '', '');
+  wrapper.id = id;
+
+  const toggle = el('div', 'section-toggle');
+  toggle.innerHTML = `
+    <h2 class="section-heading" style="margin-bottom:0">${title}</h2>
+    <svg class="section-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="6 9 12 15 18 9"></polyline>
+    </svg>
+  `;
+
+  const content = el('div', 'section-content');
+
+  toggle.addEventListener('click', () => {
+    const isOpen = toggle.classList.contains('open');
+    if (isOpen) {
+      toggle.classList.remove('open');
+      content.classList.remove('open');
+      content.style.maxHeight = '0';
+    } else {
+      toggle.classList.add('open');
+      content.classList.add('open');
+      content.style.maxHeight = 'none';
+    }
+  });
+
+  wrapper.appendChild(toggle);
+  wrapper.appendChild(content);
+  return { wrapper, content };
+}
+
 // ── Render all ───────────────────────────────────────────────────────────────
-app.appendChild(el('h2', 'section-heading', 'Paid Ads Reports'));
+
+// 1. Sales & Marketing Funnels
+const funnelSection = buildCollapsibleSection('Sales & Marketing Funnels', 'section-funnels');
+FUNNEL_ORDER.forEach(cfg => {
+  funnelSection.content.appendChild(buildFunnelAccordion(cfg));
+});
+app.appendChild(funnelSection.wrapper);
+
+// 2. Paid Ads Reports
+app.appendChild(el('hr', 'section-divider'));
+const paidSection = buildCollapsibleSection('Paid Ads Reports', 'section-paid');
 ENTITY_ORDER.forEach(key => {
   const acc = buildEntityAccordion(key);
-  if (acc) app.appendChild(acc);
+  if (acc) paidSection.content.appendChild(acc);
 });
-app.appendChild(buildSummary());
+paidSection.content.appendChild(buildSummary());
+app.appendChild(paidSection.wrapper);
 
-// SEO section
+// 3. SEO Reports
 if (REPORT.seo && Object.keys(REPORT.seo).length) {
   app.appendChild(el('hr', 'section-divider'));
-  app.appendChild(el('h2', 'section-heading', 'SEO Reports'));
+  const seoSection = buildCollapsibleSection('SEO Reports', 'section-seo');
   SEO_ORDER.forEach(entity => {
     const acc = buildSeoAccordion(entity);
-    if (acc) app.appendChild(acc);
+    if (acc) seoSection.content.appendChild(acc);
   });
+  app.appendChild(seoSection.wrapper);
 }
 
 // Init leads dropdowns after DOM is populated
