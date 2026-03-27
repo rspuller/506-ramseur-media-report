@@ -147,6 +147,82 @@ body {
 .metric-wow.down { color: #dc2626; }
 .metric-wow.flat { color: #888; }
 
+/* ── Executive Summary ────────────────────────────────────────────── */
+.exec-summary {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 1px 6px rgba(0,0,0,.08);
+  padding: 1.5rem 1.75rem 1.25rem;
+  margin-bottom: 1.75rem;
+}
+.exec-summary-title {
+  font-size: 1.0625rem;
+  font-weight: 700;
+  color: #1e1d1b;
+  margin-bottom: .1rem;
+}
+.exec-summary-subtitle {
+  font-size: .8rem;
+  font-weight: 500;
+  color: #999;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  margin-bottom: 1rem;
+}
+.exec-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: .65rem;
+  margin-bottom: 1.25rem;
+}
+.exec-kpi {
+  background: #f8f7f5;
+  border-radius: 8px;
+  padding: .75rem 1rem;
+}
+.exec-kpi .metric-label { color: #666; }
+.exec-kpi .metric-value { font-size: 1.25rem; }
+
+.exec-scorecard {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: .8125rem;
+}
+.exec-scorecard thead th {
+  font-size: .6875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  color: #999;
+  text-align: left;
+  padding: .4rem .6rem;
+  border-bottom: 2px solid #e8e6e0;
+}
+.exec-scorecard thead th:not(:first-child) { text-align: right; }
+.exec-scorecard tbody td {
+  padding: .55rem .6rem;
+  border-bottom: 1px solid #f0efeb;
+}
+.exec-scorecard tbody td:not(:first-child) {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.exec-scorecard .entity-dot {
+  display: inline-block;
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  margin-right: .4rem;
+  vertical-align: middle;
+}
+.exec-scorecard .entity-name {
+  font-weight: 600;
+  color: #1e1d1b;
+}
+.exec-scorecard .wow-cell { font-weight: 600; font-size: .75rem; }
+.exec-scorecard .wow-up   { color: #16a34a; }
+.exec-scorecard .wow-down { color: #dc2626; }
+.exec-scorecard .wow-flat { color: #aaa; }
+
 /* ── Section date range label ─────────────────────────────────────── */
 .section-date-range {
   font-size: .8rem;
@@ -442,6 +518,9 @@ body {
   .chips, .pills { display: none; }
   .metrics-grid { grid-template-columns: repeat(2, 1fr); }
   .funnel-grid { grid-template-columns: repeat(2, 1fr); }
+  .exec-kpi-grid { grid-template-columns: repeat(2, 1fr); }
+  .exec-summary { padding: 1.25rem 1rem 1rem; }
+  .exec-scorecard { font-size: .75rem; }
   .search-terms-grid { grid-template-columns: 1fr; }
   .platform-row { grid-template-columns: repeat(2, 1fr); }
 }
@@ -1215,7 +1294,134 @@ function buildCollapsibleSection(title, id) {
   return { wrapper, content };
 }
 
+// ── Executive Summary ────────────────────────────────────────────────────────
+function buildExecutiveSummary() {
+  const entities = REPORT.entities;
+
+  // Gather funnel data per entity (same logic as buildFunnelAccordion)
+  const EXEC_ENTITIES = [
+    { key: 'events_506',    label: 'Events at 506',               entityKey: 'events_506' },
+    { key: 'catering',      label: 'Catering — Nerra',            entityKey: 'catering' },
+    { key: 'office_cowork', label: 'Private Office & Coworking',  entityKey: 'private_office' },
+    { key: 'oak_and_glow',  label: 'Oak & Glow Med Spa',          entityKey: 'oak_and_glow' },
+    { key: 'smashing_boxes',label: 'Smashing Boxes',              entityKey: 'smashing_boxes' },
+  ];
+
+  function getFunnel(cfg) {
+    if (cfg.key === 'office_cowork') return entities.private_office?.funnel || {};
+    return entities[cfg.key]?.funnel || {};
+  }
+  function getFunnelPrev(cfg) {
+    if (cfg.key === 'office_cowork') return entities.private_office?.funnel_prev || {};
+    return entities[cfg.key]?.funnel_prev || {};
+  }
+  function getSpend(cfg) {
+    if (cfg.key === 'office_cowork') {
+      return (entities.private_office?.total_spend || 0) + (entities.coworking?.total_spend || 0);
+    }
+    return entities[cfg.entityKey]?.total_spend || 0;
+  }
+  function getAccent(cfg) {
+    const sty = ENTITY_STYLES[cfg.key] || ENTITY_STYLES[cfg.entityKey];
+    return sty?.accent || '#888';
+  }
+
+  // Aggregate totals
+  let totalLeads = 0, totalRevenue = 0, totalSpend = 0;
+  let prevTotalLeads = 0, prevTotalRevenue = 0;
+  const rows = [];
+
+  EXEC_ENTITIES.forEach(cfg => {
+    const f = getFunnel(cfg);
+    const fp = getFunnelPrev(cfg);
+    const nl = f.new_leads || 0;
+    const rev = f.revenue_collected || 0;
+    const spend = getSpend(cfg);
+    const prevNl = fp.new_leads || 0;
+    const prevRev = fp.revenue_collected || 0;
+
+    totalLeads += nl;
+    totalRevenue += rev;
+    totalSpend += spend;
+    prevTotalLeads += prevNl;
+    prevTotalRevenue += prevRev;
+
+    // WoW for leads
+    let wowLeads;
+    if (prevNl === 0 && nl === 0) wowLeads = 0;
+    else if (prevNl === 0) wowLeads = Infinity;
+    else wowLeads = (nl - prevNl) / prevNl;
+
+    rows.push({ cfg, nl, rev, spend, wowLeads });
+  });
+
+  // Portfolio-level WoW
+  function wowPct(curr, prev) {
+    if (prev === 0 && curr === 0) return 0;
+    if (prev === 0) return Infinity;
+    return (curr - prev) / prev;
+  }
+  const wowTotalLeads = wowPct(totalLeads, prevTotalLeads);
+  const wowTotalRev   = wowPct(totalRevenue, prevTotalRevenue);
+  const blendedROAS   = totalSpend > 0 ? totalRevenue / totalSpend : null;
+
+  // Build HTML
+  const section = el('div', 'exec-summary');
+  let html = '';
+  html += `<div class="exec-summary-title">Executive Summary</div>`;
+  html += `<div class="exec-summary-subtitle">Portfolio Overview &mdash; ${REPORT.date_range}</div>`;
+
+  // KPI cards
+  html += `<div class="exec-kpi-grid">`;
+  html += metricCard('Total New Leads', fmt.int(totalLeads), 'Across all entities', wowTotalLeads).outerHTML.replace('metric-card', 'metric-card exec-kpi');
+  html += metricCard('Total Ad Spend', fmt.currency(totalSpend), 'Google + Meta', null).outerHTML.replace('metric-card', 'metric-card exec-kpi');
+  html += metricCard('Total CRM Revenue', fmt.currency(totalRevenue), 'From all pipelines', wowTotalRev).outerHTML.replace('metric-card', 'metric-card exec-kpi');
+  html += metricCard('Blended ROAS', blendedROAS != null ? blendedROAS.toFixed(2) + 'x' : '—', blendedROAS != null ? fmt.currency(totalRevenue) + ' / ' + fmt.currency(totalSpend) : null, null).outerHTML.replace('metric-card', 'metric-card exec-kpi');
+  html += `</div>`;
+
+  // Entity scorecard table
+  html += `<table class="exec-scorecard">`;
+  html += `<thead><tr>
+    <th>Entity</th>
+    <th>New Leads</th>
+    <th>Revenue</th>
+    <th>Ad Spend</th>
+    <th>Trend</th>
+  </tr></thead>`;
+  html += `<tbody>`;
+
+  rows.forEach(r => {
+    const accent = getAccent(r.cfg);
+    // WoW trend cell
+    let wowHtml;
+    if (r.wowLeads === 0) {
+      wowHtml = '<span class="wow-cell wow-flat">—</span>';
+    } else if (r.wowLeads === Infinity) {
+      wowHtml = '<span class="wow-cell wow-up">&#9650; New</span>';
+    } else if (r.wowLeads > 0) {
+      wowHtml = `<span class="wow-cell wow-up">&#9650; ${Math.abs(r.wowLeads * 100).toFixed(0)}%</span>`;
+    } else {
+      wowHtml = `<span class="wow-cell wow-down">&#9660; ${Math.abs(r.wowLeads * 100).toFixed(0)}%</span>`;
+    }
+
+    html += `<tr>
+      <td><span class="entity-dot" style="background:${accent}"></span><span class="entity-name">${r.cfg.label}</span></td>
+      <td>${fmt.int(r.nl)}</td>
+      <td>${r.rev > 0 ? fmt.currency(r.rev) : '<span style="color:#bbb">—</span>'}</td>
+      <td>${r.spend > 0 ? fmt.currency(r.spend) : '<span style="color:#bbb">—</span>'}</td>
+      <td>${wowHtml}</td>
+    </tr>`;
+  });
+
+  html += `</tbody></table>`;
+  section.innerHTML = html;
+  return section;
+}
+
 // ── Render all ───────────────────────────────────────────────────────────────
+
+// Executive Summary (always visible, non-collapsible)
+app.appendChild(buildExecutiveSummary());
 
 // Date range label for section headers
 const dateRangeLabel = `<span class="section-date-range">${REPORT.date_range}</span>`;
