@@ -498,7 +498,7 @@ body {
 .leads-dropdown-btn:hover { border-color: var(--accent); }
 .leads-dropdown-btn svg { width: 14px; height: 14px; color: var(--text-faint); flex-shrink: 0; }
 .leads-dropdown-list {
-  position: fixed;
+  position: absolute; top: 100%; left: 0; margin-top: .25rem;
   background: var(--dropdown-bg); border: 1px solid var(--dropdown-border); border-radius: 8px;
   box-shadow: 0 4px 16px var(--dropdown-shadow);
   min-width: 220px; max-height: 220px; overflow-y: auto;
@@ -1390,9 +1390,6 @@ function initLeadsDropdown(leads, idPrefix, openFn) {
 
   btn.addEventListener('click', e => {
     e.stopPropagation();
-    const rect = btn.getBoundingClientRect();
-    list.style.top  = (rect.bottom + 4) + 'px';
-    list.style.left = rect.left + 'px';
     list.classList.toggle('open');
   });
 
