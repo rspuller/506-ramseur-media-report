@@ -815,6 +815,7 @@ const ENTITY_STYLES = {
   oak_and_glow:    { accent: '#3b6d11', metricBg: '#eef6e8', metricBgDark: '#1a2a15' },
   smashing_boxes:  { accent: '#993556', metricBg: '#fdf0f4', metricBgDark: '#2d1a22' },
   coworking:       { accent: '#c87520', metricBg: '#fef4e8', metricBgDark: '#2d2518' },
+  office_cowork:   { accent: '#c87520', metricBg: '#fff3e6', metricBgDark: '#2d2518' },
   // SEO-only entities
   durham_bottling: { accent: '#185fa5', metricBg: '#eef4fb', metricBgDark: '#1a2a3d' },
   nerra_catering:  { accent: '#534ab7', metricBg: '#f2f0fc', metricBgDark: '#221f38' },
@@ -1032,11 +1033,14 @@ function buildCustomReport(fromStr, toStr) {
   const poPrev = prevCrm.private_office || {};
   const poFunnel = _officeFunnel(poCrm);
   const poPrevFunnel = _officeFunnel(poPrev);
-  // Merge coworking ad metrics with private_office
+  // Merge coworking ad metrics with private_office (zero out coworking to avoid double-count)
   if (entities.coworking && entities.private_office) {
     entities.private_office.total_spend += entities.coworking.total_spend;
     entities.private_office.total_clicks += entities.coworking.total_clicks;
     entities.private_office.total_impressions = (entities.private_office.google?.impressions || 0) + (entities.coworking.google?.impressions || 0);
+    entities.coworking.total_spend = 0;
+    entities.coworking.total_clicks = 0;
+    entities.coworking.total_impressions = 0;
   }
   _attachFunnel('private_office', poFunnel, poPrevFunnel, 'private_office');
   if (entities.coworking) {
