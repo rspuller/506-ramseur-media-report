@@ -1601,14 +1601,20 @@ function _showModal(title, fieldPairs) {
 }
 
 function openLeadModal(lead) {
+  const rev = lead.revenue || '—';
+  const hasRevenue = rev && rev !== '—' && rev !== '$0.00';
+  const isBooked = (lead.status || '').toLowerCase() === 'booked';
+  const statusDisplay = (isBooked && hasRevenue)
+    ? '<span style="color:#22c55e;font-weight:700">CLOSED WON</span>'
+    : (lead.status || '—');
   _showModal(lead.name, [
     ['Created',         lead.created],
     ['Email',           lead.email],
     ['Event',           lead.event_type],
     ['Event Date',      lead.event_date],
     ['Guests',          lead.guests],
-    ['Status',          lead.status || '—'],
-    ['Revenue',         lead.revenue || '—'],
+    ['Status',          statusDisplay],
+    ['Revenue',         rev],
     ['Lead Source',     lead.lead_source],
   ]);
 }
