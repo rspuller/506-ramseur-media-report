@@ -162,10 +162,39 @@ body {
   font-family: inherit;
   font-size: .75rem;
   outline: none;
-  color-scheme: dark;
+  cursor: pointer;
+  min-width: 90px;
+  text-align: center;
 }
-.custom-date-input:focus { border-color: rgba(255,255,255,.4); }
+.custom-date-input:hover { border-color: rgba(255,255,255,.4); }
 .custom-range-sep { color: rgba(255,255,255,.6); font-size: .75rem; }
+.cal-wrap { position: relative; display: inline-block; }
+.cal-popup {
+  display: none; position: absolute; top: calc(100% + 4px); left: 50%; transform: translateX(-50%);
+  background: #1e1e1e; border: 1px solid rgba(255,255,255,.2); border-radius: 8px;
+  padding: .5rem; z-index: 2000; box-shadow: 0 8px 24px rgba(0,0,0,.5);
+  min-width: 220px; font-size: .75rem; color: #fff; user-select: none;
+}
+.cal-popup.open { display: block; }
+.cal-nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: .4rem; }
+.cal-nav button {
+  background: none; border: none; color: #fff; cursor: pointer; font-size: .85rem;
+  padding: .15rem .4rem; border-radius: 4px;
+}
+.cal-nav button:hover { background: rgba(255,255,255,.15); }
+.cal-nav button:disabled { opacity: .25; cursor: default; }
+.cal-nav button:disabled:hover { background: none; }
+.cal-nav span { font-weight: 600; font-size: .8rem; }
+.cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 1px; text-align: center; }
+.cal-grid .cal-hdr { font-size: .65rem; color: rgba(255,255,255,.45); padding: .15rem 0; }
+.cal-grid .cal-day {
+  padding: .25rem 0; border-radius: 4px; cursor: pointer; font-size: .75rem;
+}
+.cal-grid .cal-day:hover { background: rgba(255,255,255,.15); }
+.cal-grid .cal-day.disabled { color: rgba(255,255,255,.2); cursor: default; }
+.cal-grid .cal-day.disabled:hover { background: none; }
+.cal-grid .cal-day.selected { background: rgba(255,255,255,.25); font-weight: 700; }
+.cal-grid .cal-day.other-month { color: rgba(255,255,255,.15); }
 .custom-apply-btn {
   background: rgba(255,255,255,.18);
   color: #fff;
@@ -699,10 +728,18 @@ body {
       <option value="custom">Custom Range</option>
     </select>
     <div id="custom-range-panel" class="custom-range-panel hidden">
-      <input type="date" id="custom-from" class="custom-date-input" min="2026-01-01" max="2026-03-29">
+      <div class="cal-wrap">
+        <div class="custom-date-input" id="custom-from-display"></div>
+        <div class="cal-popup" id="cal-from"></div>
+      </div>
       <span class="custom-range-sep">to</span>
-      <input type="date" id="custom-to" class="custom-date-input" min="2026-01-01" max="2026-03-29">
+      <div class="cal-wrap">
+        <div class="custom-date-input" id="custom-to-display"></div>
+        <div class="cal-popup" id="cal-to"></div>
+      </div>
       <button id="custom-apply" class="custom-apply-btn">Apply</button>
+      <input type="hidden" id="custom-from">
+      <input type="hidden" id="custom-to">
     </div>
     <span id="header-dates"></span>
     <span id="header-generated"></span>
@@ -767,21 +804,107 @@ if (_IS_PRESET_MODE) {
   const customPanel = document.getElementById('custom-range-panel');
   const customFrom = document.getElementById('custom-from');
   const customTo = document.getElementById('custom-to');
+  const customFromDisplay = document.getElementById('custom-from-display');
+  const customToDisplay = document.getElementById('custom-to-display');
   const customApply = document.getElementById('custom-apply');
 
   picker.classList.remove('hidden');
   picker.value = _RAW_DATA.default_preset;
 
-  // Set date input bounds from available data
+  // -- Custom calendar picker -------------------------------------------------
+  const MONTH_NAMES = ['January','February','March','April','May','June',
+                       'July','August','September','October','November','December'];
+  const DAY_HDRS = ['Su','Mo','Tu','We','Th','Fr','Sa'];
+  let calMin = '2026-01-01', calMax = '2026-12-31';
+
   if (_RAW_DATA.custom) {
-    customFrom.min = _RAW_DATA.custom.earliest;
-    customFrom.max = _RAW_DATA.custom.latest;
-    customTo.min = _RAW_DATA.custom.earliest;
-    customTo.max = _RAW_DATA.custom.latest;
-    // Default custom dates to this week
-    customFrom.value = _RAW_DATA.custom.earliest;
-    customTo.value = _RAW_DATA.custom.latest;
+    calMin = _RAW_DATA.custom.earliest;
+    calMax = _RAW_DATA.custom.latest;
+    customFrom.value = calMin;
+    customTo.value = calMax;
   }
+
+  function _fmtDisplay(iso) {
+    if (!iso) return '—';
+    const [y, m, d] = iso.split('-');
+    return `${MONTH_NAMES[+m - 1].slice(0, 3)} ${+d}, ${y}`;
+  }
+  customFromDisplay.textContent = _fmtDisplay(customFrom.value);
+  customToDisplay.textContent = _fmtDisplay(customTo.value);
+
+  function _daysInMonth(y, m) { return new Date(y, m + 1, 0).getDate(); }
+
+  function _renderCal(popupEl, targetInput, displayEl) {
+    const cur = targetInput.value || calMin;
+    let viewYear = +cur.slice(0, 4);
+    let viewMonth = +cur.slice(5, 7) - 1;
+    const minD = new Date(calMin + 'T00:00:00');
+    const maxD = new Date(calMax + 'T00:00:00');
+    const minY = minD.getFullYear(), minM = minD.getMonth();
+    const maxY = maxD.getFullYear(), maxM = maxD.getMonth();
+
+    function draw() {
+      const canPrev = viewYear > minY || (viewYear === minY && viewMonth > minM);
+      const canNext = viewYear < maxY || (viewYear === maxY && viewMonth < maxM);
+      const dim = _daysInMonth(viewYear, viewMonth);
+      const startDow = new Date(viewYear, viewMonth, 1).getDay();
+      const selected = targetInput.value;
+
+      let h = '<div class="cal-nav">';
+      h += `<button class="cal-prev" ${canPrev ? '' : 'disabled'}>&lsaquo;</button>`;
+      h += `<span>${MONTH_NAMES[viewMonth]} ${viewYear}</span>`;
+      h += `<button class="cal-next" ${canNext ? '' : 'disabled'}>&rsaquo;</button>`;
+      h += '</div><div class="cal-grid">';
+      DAY_HDRS.forEach(d => h += `<div class="cal-hdr">${d}</div>`);
+
+      // Leading blanks
+      for (let i = 0; i < startDow; i++) h += '<div></div>';
+
+      for (let day = 1; day <= dim; day++) {
+        const iso = `${viewYear}-${String(viewMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+        const dt = new Date(iso + 'T00:00:00');
+        const disabled = dt < minD || dt > maxD;
+        const sel = iso === selected;
+        h += `<div class="cal-day${disabled ? ' disabled' : ''}${sel ? ' selected' : ''}" data-date="${iso}">${day}</div>`;
+      }
+      h += '</div>';
+      popupEl.innerHTML = h;
+
+      popupEl.querySelector('.cal-prev')?.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (canPrev) { viewMonth--; if (viewMonth < 0) { viewMonth = 11; viewYear--; } draw(); }
+      });
+      popupEl.querySelector('.cal-next')?.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (canNext) { viewMonth++; if (viewMonth > 11) { viewMonth = 0; viewYear++; } draw(); }
+      });
+      popupEl.querySelectorAll('.cal-day:not(.disabled)').forEach(el => {
+        el.addEventListener('click', (e) => {
+          e.stopPropagation();
+          targetInput.value = el.dataset.date;
+          displayEl.textContent = _fmtDisplay(el.dataset.date);
+          popupEl.classList.remove('open');
+        });
+      });
+    }
+    draw();
+    popupEl.classList.add('open');
+  }
+
+  customFromDisplay.addEventListener('click', (e) => {
+    e.stopPropagation();
+    document.getElementById('cal-to').classList.remove('open');
+    _renderCal(document.getElementById('cal-from'), customFrom, customFromDisplay);
+  });
+  customToDisplay.addEventListener('click', (e) => {
+    e.stopPropagation();
+    document.getElementById('cal-from').classList.remove('open');
+    _renderCal(document.getElementById('cal-to'), customTo, customToDisplay);
+  });
+  document.addEventListener('click', () => {
+    document.getElementById('cal-from').classList.remove('open');
+    document.getElementById('cal-to').classList.remove('open');
+  });
 
   picker.addEventListener('change', (e) => {
     if (e.target.value === 'custom') {
