@@ -1911,7 +1911,7 @@ function buildExecutiveSummary() {
   html += `<div class="exec-kpi-grid">`;
   html += metricCard('Total New Leads', fmt.int(totalLeads), 'Across all entities', wowTotalLeads).outerHTML.replace('metric-card', 'metric-card exec-kpi');
   html += metricCard('Total Ad Spend', fmt.currency(totalSpend), 'Google + Meta', null).outerHTML.replace('metric-card', 'metric-card exec-kpi');
-  html += metricCard('Revenue This Period', fmt.currency(totalRevenue), 'From all pipelines', wowTotalRev).outerHTML.replace('metric-card', 'metric-card exec-kpi');
+  html += metricCard('New Revenue this Period', fmt.currency(totalRevenue), 'From all pipelines', wowTotalRev).outerHTML.replace('metric-card', 'metric-card exec-kpi');
   html += metricCard('Blended ROAS', blendedROAS != null ? blendedROAS.toFixed(2) + 'x' : '—', blendedROAS != null ? fmt.currency(totalRevenue) + ' / ' + fmt.currency(totalSpend) : null, null).outerHTML.replace('metric-card', 'metric-card exec-kpi');
   html += metricCard('Revenue MTD', fmt.currency(mtdRevenue), mtdLabel, null).outerHTML.replace('metric-card', 'metric-card exec-kpi');
   html += `</div>`;
