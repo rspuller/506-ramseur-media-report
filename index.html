@@ -1572,7 +1572,12 @@ function buildSearchTerms(st, sty) {
 function _leadItemLabel(l, statusField) {
   const name = l.name || '(unnamed)';
   const stat = statusField ? (l[statusField] || '') : '';
-  return stat ? `${name} <span style="opacity:.6">(${stat})</span>` : name;
+  if (!stat) return name;
+  const lower = stat.toLowerCase();
+  if (lower === 'booked' || lower === 'active') {
+    return `${name} <span style="color:#22c55e;font-weight:700">(CLOSED WON)</span>`;
+  }
+  return `${name} <span style="opacity:.6">(${stat})</span>`;
 }
 
 function buildLeadsSection(leads, opts) {
