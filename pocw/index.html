@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Private Office & Coworking — 506 Ramseur</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+  :root {
+    color-scheme: dark light;
+    --bg:#0b1220; --panel:#131c2d; --panel-2:#1a2438;
+    --border:rgba(148,163,184,0.10); --border-2:rgba(148,163,184,0.16);
+    --fg:#e8ecf3; --muted:#8a96a8; --muted-2:#5a6478;
+    --accent:#5b8def; --accent-2:#7ea5f4; --accent-soft:rgba(91,141,239,0.14);
+    --good:#22c55e; --good-soft:rgba(34,197,94,0.14);
+    --warn:#f59e0b; --warn-soft:rgba(245,158,11,0.14);
+    --critical:#ef4444; --critical-soft:rgba(239,68,68,0.14);
+    --neutral-soft:rgba(100,116,139,0.20);
+    --font-ui:"Manrope",ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+    --font-mono:"IBM Plex Mono",ui-monospace,"SFMono-Regular",Menlo,monospace;
+  }
+  :root[data-theme="light"] {
+    --bg:#f4f6fb; --panel:#ffffff; --panel-2:#f0f3fa;
+    --border:rgba(15,23,42,0.08); --border-2:rgba(15,23,42,0.14);
+    --fg:#0f1a2e; --muted:#556173; --muted-2:#8895a8;
+    --accent:#2e5cd0; --accent-2:#4577e6; --accent-soft:rgba(46,92,208,0.10);
+  }
+  * { box-sizing: border-box; }
+  html, body { background: var(--bg); color: var(--fg); }
+  body { margin: 0; font-family: var(--font-ui); font-size: 13.5px; line-height: 1.42; padding: 16px 20px 32px; }
+  .wrap { max-width: 1440px; margin: 0 auto; }
+  header { display: grid; grid-template-columns: minmax(240px,1fr) auto minmax(240px,1fr);
+    align-items: center; padding: 4px 4px 14px; border-bottom: 1px solid var(--border); margin-bottom: 14px; }
+  .brand { display: flex; align-items: baseline; gap: 12px; }
+  .brand-mark { font-weight: 800; font-size: 18px; letter-spacing: 0.02em; color: var(--fg); }
+  .brand-mark::before { content:""; display: inline-block; width: 5px; height: 20px;
+    background: var(--accent); vertical-align: -3px; margin-right: 10px; border-radius: 1px; }
+  .brand-sub { font-size: 11px; color: var(--muted); letter-spacing: 0.06em; text-transform: uppercase; }
+  .title { text-align: center; font-size: 12px; letter-spacing: 0.24em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+  .meta { display: flex; align-items: center; justify-content: flex-end; gap: 12px; font-size: 11.5px; color: var(--muted); }
+  .live { display: inline-flex; align-items: center; gap: 6px; padding: 2px 7px; border: 1px solid var(--good); color: var(--good);
+    border-radius: 3px; font-size: 9.5px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; }
+  .live::before { content:""; width: 5px; height: 5px; border-radius: 50%; background: var(--good); }
+  .meta-date { font-family: var(--font-mono); font-size: 11.5px; color: var(--fg); }
+  .back { color: var(--muted); text-decoration: none; font-size: 11.5px;
+    border-right: 1px solid var(--border-2); padding-right: 12px; margin-right: 2px; }
+  .back:hover { color: var(--accent); }
+  .grid { display: grid; grid-template-columns: repeat(12, minmax(0,1fr)); gap: 12px; }
+  .row1 .card { grid-column: span 4; }
+  .row2 .card.occupancy { grid-column: span 7; }
+  .row2 .card.pbs { grid-column: span 5; }
+  .row3 .card.funnel { grid-column: span 4; }
+  .row3 .card.activity { grid-column: span 8; }
+  .row { display: contents; }
+  .card { background: var(--panel); border: 1px solid var(--border); border-radius: 6px;
+    padding: 14px 16px 16px; display: flex; flex-direction: column; min-width: 0; }
+  .card-head { margin-bottom: 10px; }
+  .card-title { font-size: 10.5px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--fg); }
+  .card-sub { font-size: 10.5px; color: var(--muted-2); margin-top: 3px; font-style: italic; }
+  .hero { display: flex; align-items: baseline; gap: 10px; margin-top: 2px; }
+  .hero-num { font-size: clamp(2rem, 4.2vw, 3rem); font-weight: 700; letter-spacing: -0.025em;
+    line-height: 1; font-variant-numeric: tabular-nums; color: var(--fg); }
+  .hero-unit { font-size: 10px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); padding-bottom: 4px; }
+  .delta { display: inline-flex; align-items: center; gap: 4px; padding: 2px 7px; border-radius: 3px;
+    font-size: 10.5px; font-weight: 600; font-variant-numeric: tabular-nums; }
+  .delta.up { color: var(--good); background: var(--good-soft); }
+  .delta.down { color: var(--critical); background: var(--critical-soft); }
+  .delta.up::before { content:"▲"; font-size: 8px; margin-right: 2px; }
+  .delta.down::before { content:"▼"; font-size: 8px; margin-right: 2px; }
+  .hero-ctx { margin-top: 10px; font-size: 11.5px; color: var(--muted); display: flex; align-items: center;
+    gap: 8px; flex-wrap: wrap; font-variant-numeric: tabular-nums; }
+  .hero-ctx strong { color: var(--fg); }
+  .spark { margin-top: auto; padding-top: 12px; }
+  .spark svg { width: 100%; height: 38px; display: block; }
+  .src-inline { display: flex; flex-wrap: wrap; gap: 6px 10px; margin-top: 12px; }
+  .src-inline li { display: flex; align-items: center; gap: 6px; font-size: 10.5px; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .src-inline .sw { width: 7px; height: 7px; border-radius: 2px; }
+  .src-inline b { color: var(--fg); font-weight: 700; }
+  .occ-wrap { display: grid; grid-template-columns: 1.1fr 1fr; gap: 18px; align-items: center; }
+  .occ-tiles { display: grid; grid-template-columns: repeat(8, 1fr); gap: 3px; }
+  .occ-tile { aspect-ratio: 1 / 1; border-radius: 2px; }
+  .occ-summary { display: flex; flex-direction: column; }
+  .occ-hero { font-size: clamp(2rem, 3.8vw, 2.6rem); font-weight: 700; letter-spacing: -0.02em;
+    line-height: 1; font-variant-numeric: tabular-nums; color: var(--fg); }
+  .occ-sub { font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); margin-top: 5px; }
+  .occ-legend { margin-top: 14px; display: grid; gap: 7px; }
+  .occ-legend li { display: grid; grid-template-columns: 10px 1fr auto; align-items: center; gap: 10px; font-size: 11.5px; }
+  .occ-legend .sw { width: 10px; height: 10px; border-radius: 2px; }
+  .occ-legend .lbl { color: var(--muted); letter-spacing: 0.04em; text-transform: uppercase; font-size: 10px; font-weight: 600; }
+  .occ-legend .num { color: var(--fg); font-weight: 700; font-variant-numeric: tabular-nums; }
+  .pbs-table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+  .pbs-table th { text-align: right; font-size: 10px; font-weight: 600; color: var(--muted);
+    text-transform: uppercase; letter-spacing: 0.06em; padding: 4px 0 8px; border-bottom: 1px solid var(--border); }
+  .pbs-table th:first-child { text-align: left; }
+  .pbs-table td { padding: 9px 0; border-top: 1px solid var(--border); font-size: 12px; text-align: right; color: var(--fg); }
+  .pbs-table td:first-child { text-align: left; }
+  .pbs-table tr:first-child td { border-top: none; }
+  .pbs-src { display: inline-flex; align-items: center; gap: 7px; }
+  .pbs-src .dot { width: 7px; height: 7px; border-radius: 2px; }
+  .pbs-src .name { font-size: 10.5px; letter-spacing: 0.06em; text-transform: uppercase; font-weight: 600; }
+  .num-muted { color: var(--muted-2); }
+  .num-good { color: var(--good); font-weight: 700; }
+  .funnel { display: flex; flex-direction: column; gap: 10px; }
+  .funnel-step { display: flex; flex-direction: column; gap: 3px; }
+  .funnel-lbl { display: flex; justify-content: space-between; align-items: baseline;
+    font-size: 10.5px; color: var(--muted); letter-spacing: 0.06em; text-transform: uppercase; font-weight: 600; }
+  .funnel-num { color: var(--fg); font-size: 15px; font-weight: 700; font-variant-numeric: tabular-nums; letter-spacing: -0.01em; }
+  .funnel-bar { height: 5px; background: var(--accent); border-radius: 3px; }
+  .funnel-conv { font-size: 10px; color: var(--muted-2); font-family: var(--font-mono); margin: -1px 0 3px; text-align: right; }
+  .activity-wrap { overflow-x: auto; margin-top: -2px; }
+  .activity { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+  .activity th { text-align: left; font-size: 10px; font-weight: 600; color: var(--muted);
+    text-transform: uppercase; letter-spacing: 0.06em; padding: 4px 10px 8px 0; border-bottom: 1px solid var(--border); white-space: nowrap; }
+  .activity th.sortable { cursor: pointer; user-select: none; }
+  .activity th.sortable::after { content: " ↕"; opacity: 0.35; font-size: 9px; }
+  .activity td { padding: 7px 10px 7px 0; border-top: 1px solid var(--border); font-size: 12px; color: var(--fg); vertical-align: middle; }
+  .activity tr:first-child td { border-top: none; }
+  .activity .name { font-weight: 600; }
+  .activity .date { color: var(--muted); font-family: var(--font-mono); font-size: 11px; }
+  .status-pill, .src-pill { display: inline-block; padding: 2px 7px; border-radius: 3px;
+    font-size: 9.5px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; white-space: nowrap; }
+  .status-pill.won { color: var(--good); background: var(--good-soft); }
+  .status-pill.pending { color: var(--warn); background: var(--warn-soft); }
+  .status-pill.neutral { color: var(--muted); background: var(--neutral-soft); }
+  .src-pill.meta { color: #b7a4ee; background: rgba(126,87,194,0.20); }
+  .src-pill.google { color: #98bbf7; background: rgba(91,141,239,0.18); }
+  .src-pill.webflow { color: #f6a0bd; background: rgba(234,76,137,0.16); }
+  .src-pill.inbox { color: #a7bccf; background: rgba(96,125,139,0.20); }
+  .src-pill.walkin { color: #b6c1d3; background: rgba(100,116,139,0.20); }
+  footer { margin-top: 20px; padding-top: 12px; border-top: 1px solid var(--border);
+    display: flex; justify-content: space-between; align-items: center;
+    font-size: 10.5px; color: var(--muted-2); font-family: var(--font-mono); }
+  @media (max-width: 1100px) {
+    .row1 .card { grid-column: span 6; } .row1 .card:nth-child(3) { grid-column: 1 / -1; }
+    .row2 .card.occupancy, .row2 .card.pbs { grid-column: 1 / -1; }
+    .row3 .card.funnel { grid-column: span 5; }
+    .row3 .card.activity { grid-column: span 7; }
+  }
+  @media (max-width: 640px) {
+    body { padding: 12px 14px 20px; } header { grid-template-columns: 1fr; row-gap: 8px; }
+    .title, .meta { text-align: left; justify-content: flex-start; }
+    .row1 .card, .row3 .card { grid-column: 1 / -1 !important; }
+    .hero-num { font-size: 2.2rem; }
+    .occ-wrap { grid-template-columns: 1fr; }
+  }
+</style></head><body>
+
+<div class="wrap">
+<header>
+  <div class="brand">
+    <div class="brand-mark">DBCO</div>
+    <div class="brand-sub">Durham Bottling Company</div>
+  </div>
+  <div class="title">Private Office &amp; Coworking</div>
+  <div class="meta">
+    <a class="back" href="/">← Portfolio</a>
+    <span class="meta-date">Sep 15, 2026</span>
+    <span class="live">Live</span>
+  </div>
+</header>
+
+<div class="grid">
+  <div class="row row1">
+    <section class="card">
+      <div class="card-head">
+        <div class="card-title">Active MRR</div>
+        <div class="card-sub">Recurring monthly revenue · billed</div>
+      </div>
+      <div class="hero"><div class="hero-num">$26,539</div><div class="hero-unit">MRR</div></div>
+      <div class="hero-ctx"><span class="delta up">$2,452 &nbsp;+10.2%</span><span>vs Aug 2026</span></div>
+      <div class="spark"><svg viewBox="0 0 240 38" preserveAspectRatio="none"><defs><linearGradient id="spark-25609" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#5b8def" stop-opacity=".32"/><stop offset="100%" stop-color="#5b8def" stop-opacity="0"/></linearGradient></defs><path d="M0.0,34.0 L0.0,34.0 L240.0,8.0 L240,38 L0,38 Z" fill="url(#spark-25609)"/><polyline points="0.0,34.0 240.0,8.0" fill="none" stroke="#5b8def" stroke-width="1.75" stroke-linejoin="round" stroke-linecap="round"/><circle cx="240.0" cy="8.0" r="2.8" fill="#5b8def"/></svg></div>
+    </section>
+
+    <section class="card">
+      <div class="card-head">
+        <div class="card-title">New Memberships</div>
+        <div class="card-sub">This period · September 1-15, 2026</div>
+      </div>
+      <div class="hero"><div class="hero-num">7</div><div class="hero-unit">Memberships</div></div>
+      <div class="hero-ctx"><span class="delta up">$51,297 MRR added</span></div>
+      <ul class="src-inline" style="margin-top:14px"><li style="color:var(--muted-2); font-style:italic;">No new memberships this period.</li></ul>
+    </section>
+
+    <section class="card">
+      <div class="card-head">
+        <div class="card-title">New Leads</div>
+        <div class="card-sub">This period · September 1-15, 2026 · unique</div>
+      </div>
+      <div class="hero"><div class="hero-num">16</div><div class="hero-unit">Leads</div></div>
+      <div class="hero-ctx"><span class="delta down">−3 vs prev</span><span>44% tour-booked</span></div>
+      <ul class="src-inline" style="margin-top:14px"><li><span class="sw" style="background:#7e57c2"></span>Meta <b>2</b></li>
+<li><span class="sw" style="background:#5b8def"></span>Google <b>7</b></li>
+<li><span class="sw" style="background:#607d8b"></span>Inbox <b>1</b></li>
+<li><span class="sw" style="background:#4a4a4a"></span>Walk-In <b>6</b></li></ul>
+    </section>
+  </div>
+
+  <div class="row row2">
+    <section class="card occupancy">
+      <div class="card-head">
+        <div class="card-title">Office Occupancy</div>
+        <div class="card-sub">42 in-service offices · updated live from OfficeRND</div>
+      </div>
+      <div class="occ-wrap">
+        <div><div class="occ-tiles"><span class="occ-tile" style="background:#5b8def" title="Office A1 — Occupied"></span><span class="occ-tile" style="background:#5b8def" title="Office A2 — Occupied"></span><span class="occ-tile" style="background:#5b8def" title="Office A3 — Occupied"></span><span class="occ-tile" style="background:#5b8def" title="Office A4 — Occupied"></span><span class="occ-tile" style="background:#5b8def" title="Office A5 — Occupied"></span><span class="occ-tile" style="background:#5b8def" title="Office A6 — Occupied"></span><span class="occ-tile" style="background:#5b8def" title="Office A7 — Occupied"></span><span class="occ-tile" style="background:#5b8def" title="Office B1 — Occupied"></span><span class="occ-tile" style="background:#5b8def" title="Office B3 — Occupied"></span><span class="occ-tile" style="background:#5b8def" title="Office B5 — Occupied"></span><span class="occ-tile" style="background:#5b8def" title="Office C1 — Occupied"></span><span class="occ-tile" style="background:#5b8def" title="Office C2 — Occupied"></span><span class="occ-tile" style="background:#5b8def" title="Office C3 — Occupied"></span><span class="occ-tile" style="background:#5b8def" title="Office C5 — Occupied"></span><span class="occ-tile" style="background:#5b8def" title="Office C6 — Occupied"></span><span class="occ-tile" style="background:#5b8def" title="Office C7 — Occupied"></span><span class="occ-tile" style="background:#5b8def" title="Office C9 — Occupied"></span><span class="occ-tile" style="background:#5b8def" title="Office C99 — Occupied"></span><span class="occ-tile" style="background:#5b8def" title="Office D1 — Occupied"></span><span class="occ-tile" style="background:#5b8def" title="Office D2 — Occupied"></span><span class="occ-tile" style="background:#5b8def" title="Office D4 — Occupied"></span><span class="occ-tile" style="background:#5b8def" title="Office D5 — Occupied"></span><span class="occ-tile" style="background:#5b8def" title="Office D6 — Occupied"></span><span class="occ-tile" style="background:#5b8def" title="Office D7 — Occupied"></span><span class="occ-tile" style="background:#5b8def" title="Office E1 — Occupied"></span><span class="occ-tile" style="background:#5b8def" title="Office E2 — Occupied"></span><span class="occ-tile" style="background:#5b8def" title="Office E4 — Occupied"></span><span class="occ-tile" style="background:#5b8def" title="Office E5 — Occupied"></span><span class="occ-tile" style="background:#5b8def" title="Office E6 — Occupied"></span><span class="occ-tile" style="background:#5b8def" title="Office E7 — Occupied"></span><span class="occ-tile" style="background:#5b8def" title="Office F1 — Occupied"></span><span class="occ-tile" style="background:#5b8def" title="Office F2 — Occupied"></span><span class="occ-tile" style="background:#5b8def" title="Office F3 — Occupied"></span><span class="occ-tile" style="background:#22c55e" title="Office B2 — Available"></span><span class="occ-tile" style="background:#22c55e" title="Office B4 — Available"></span><span class="occ-tile" style="background:#22c55e" title="Office C4 — Available"></span><span class="occ-tile" style="background:#22c55e" title="Office C8 — Available"></span><span class="occ-tile" style="background:#22c55e" title="Office D3 — Available"></span><span class="occ-tile" style="background:#22c55e" title="Office D8 — Available"></span><span class="occ-tile" style="background:#22c55e" title="Office E3 — Available"></span><span class="occ-tile" style="background:#22c55e" title="Office F4 — Available"></span><span class="occ-tile" style="background:#22c55e" title="Podcast Studio — Available"></span></div></div>
+        <div class="occ-summary">
+          <div class="occ-hero">79%</div>
+          <div class="occ-sub">Occupied &amp; Reserved</div>
+          <ul class="occ-legend"><li><span class="sw" style="background:#5b8def"></span><span class="lbl">Occupied</span><span class="num">33</span></li>
+<li><span class="sw" style="background:#f59e0b"></span><span class="lbl">Reserved</span><span class="num">0</span></li>
+<li><span class="sw" style="background:#a5b4d4"></span><span class="lbl">Available Soon</span><span class="num">0</span></li>
+<li><span class="sw" style="background:#22c55e"></span><span class="lbl">Available</span><span class="num">9</span></li></ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="card pbs">
+      <div class="card-head">
+        <div class="card-title">Performance By Source</div>
+        <div class="card-sub">Ad spend · leads · sales · September 1-15, 2026</div>
+      </div>
+      <table class="pbs-table">
+        <thead><tr><th>Source</th><th>Spend</th><th>Leads</th><th>Sales</th></tr></thead>
+        <tbody><tr><td><span class="pbs-src"><span class="dot" style="background:#7e57c2"></span><span class="name">Meta</span></span></td><td>$380</td><td>2</td><td><span class="num-good">2</span></td></tr>
+<tr><td><span class="pbs-src"><span class="dot" style="background:#5b8def"></span><span class="name">Google</span></span></td><td>$306</td><td>7</td><td>0</td></tr>
+<tr><td><span class="pbs-src"><span class="dot" style="background:#ea4c89"></span><span class="name">Webflow Form Submission</span></span></td><td><span class="num-muted">—</span></td><td>0</td><td>0</td></tr>
+<tr><td><span class="pbs-src"><span class="dot" style="background:#607d8b"></span><span class="name">Inbox</span></span></td><td><span class="num-muted">—</span></td><td>1</td><td><span class="num-good">1</span></td></tr>
+<tr><td><span class="pbs-src"><span class="dot" style="background:#4a4a4a"></span><span class="name">Walk-In</span></span></td><td><span class="num-muted">—</span></td><td>6</td><td><span class="num-good">4</span></td></tr></tbody>
+      </table>
+    </section>
+  </div>
+
+  <div class="row row3">
+    <section class="card funnel">
+      <div class="card-head">
+        <div class="card-title">Pipeline Funnel</div>
+        <div class="card-sub">September 1-15, 2026 · lead → paying member</div>
+      </div>
+      <div class="funnel-step"><div class="funnel-lbl"><span>New Leads</span><span class="funnel-num">16</span></div><div class="funnel-bar" style="width:100.0%; background:#5b8def"></div></div>
+<div class="funnel-conv">44% converted</div>
+<div class="funnel-step"><div class="funnel-lbl"><span>Tours Booked</span><span class="funnel-num">7</span></div><div class="funnel-bar" style="width:43.8%; background:#5b8def; opacity:.85"></div></div>
+<div class="funnel-conv">100% converted</div>
+<div class="funnel-step"><div class="funnel-lbl"><span>Memberships Sold</span><span class="funnel-num">7</span></div><div class="funnel-bar" style="width:43.8%; background:var(--good)"></div></div>
+    </section>
+
+    <section class="card activity">
+      <div class="card-head">
+        <div class="card-title">Lead Activity</div>
+        <div class="card-sub">This period · 16 records · click a header to sort</div>
+      </div>
+      <div class="activity-wrap">
+      <table class="activity">
+        <thead><tr>
+          <th class="sortable">Member</th>
+          <th class="sortable">Signup</th>
+          <th class="sortable">Status</th>
+          <th class="sortable">Platform Source</th>
+          <th class="sortable">Lead source</th>
+        </tr></thead>
+        <tbody><tr><td class="name">Ben Schlax</td><td class="date">2026-09-15</td><td><span class="status-pill won">Closed/Won</span></td><td><span class="src-pill walkin">Walk-In</span></td><td>Walk-in / direct — no digital trail</td></tr>
+<tr><td class="name">Miesha Atkins</td><td class="date">2026-09-15</td><td><span class="status-pill neutral">Contact</span></td><td><span class="src-pill google">Google</span></td><td>Unbounce 'Office Space' submitted Sep 15</td></tr>
+<tr><td class="name">Alleyah Watson-Wilder</td><td class="date">2026-09-14</td><td><span class="status-pill won">Closed/Won</span></td><td><span class="src-pill walkin">Walk-In</span></td><td>Walk-in / direct — no digital trail</td></tr>
+<tr><td class="name">William Gillespie</td><td class="date">2026-09-14</td><td><span class="status-pill won">Closed/Won</span></td><td><span class="src-pill meta">Meta</span></td><td>Rich's Calendly — tour on Sep 2</td></tr>
+<tr><td class="name">Darius Irby</td><td class="date">2026-09-14</td><td><span class="status-pill neutral">Contact</span></td><td><span class="src-pill google">Google</span></td><td>Unbounce 'Office Space' submitted Sep 14</td></tr>
+<tr><td class="name">EricGuckian</td><td class="date">2026-09-12</td><td><span class="status-pill neutral">Contact</span></td><td><span class="src-pill google">Google</span></td><td>Unbounce 'Office Space' submitted Sep 12</td></tr>
+<tr><td class="name">Dillon Partin</td><td class="date">2026-09-10</td><td><span class="status-pill pending">Pending</span></td><td><span class="src-pill meta">Meta</span></td><td>Rich's Calendly — tour on Sep 10</td></tr>
+<tr><td class="name">Nick Criscione</td><td class="date">2026-09-10</td><td><span class="status-pill neutral">Contact</span></td><td><span class="src-pill google">Google</span></td><td>Unbounce 'Office Space' submitted Sep 10</td></tr>
+<tr><td class="name">Chelsea Norman</td><td class="date">2026-09-09</td><td><span class="status-pill won">Closed/Won</span></td><td><span class="src-pill walkin">Walk-In</span></td><td>Walk-in / direct — no digital trail</td></tr>
+<tr><td class="name">J. Kelly Hoffman</td><td class="date">2026-09-09</td><td><span class="status-pill won">Closed/Won</span></td><td><span class="src-pill walkin">Walk-In</span></td><td>Walk-in / direct — no digital trail</td></tr>
+<tr><td class="name">Steven L Bridges</td><td class="date">2026-09-09</td><td><span class="status-pill neutral">Contact</span></td><td><span class="src-pill google">Google</span></td><td>Unbounce 'Office Space' submitted Sep 9</td></tr>
+<tr><td class="name">Dana Calder</td><td class="date">2026-09-08</td><td><span class="status-pill neutral">Drop-in</span></td><td><span class="src-pill walkin">Walk-In</span></td><td>Walk-in / direct — no digital trail</td></tr>
+<tr><td class="name">Matthew Conley</td><td class="date">2026-09-08</td><td><span class="status-pill won">Closed/Won</span></td><td><span class="src-pill inbox">Inbox</span></td><td>Inbox: matthew conley — 'Re: Welcome to Durham Bottling Co' on Tue, 8 Sep 2026 </td></tr>
+<tr><td class="name">Karl</td><td class="date">2026-09-06</td><td><span class="status-pill neutral">Contact</span></td><td><span class="src-pill google">Google</span></td><td>Unbounce 'Office Space' submitted Sep 6</td></tr>
+<tr><td class="name">Randy Jackson</td><td class="date">2026-09-03</td><td><span class="status-pill neutral">Contact</span></td><td><span class="src-pill google">Google</span></td><td>Unbounce 'Office Space' submitted Sep 3</td></tr>
+<tr><td class="name">Alice Pham</td><td class="date">2026-09-01</td><td><span class="status-pill neutral">Drop-in</span></td><td><span class="src-pill walkin">Walk-In</span></td><td>Walk-in / direct — no digital trail</td></tr></tbody>
+      </table>
+      </div>
+    </section>
+  </div>
+</div>
+
+<footer>
+  <span>Source: OfficeRND · Gmail · Windsor · Meta · Google Ads</span>
+  <span>Refreshed 05:23 AM ET</span>
+</footer>
+</div>
+
+<script>
+(function installSort(){
+  document.addEventListener('click', function(ev){
+    var th = ev.target.closest('.activity th.sortable, .pbs-table th'); if(!th) return;
+    var table = th.closest('table'); var tbody = table.querySelector('tbody');
+    var headers = [].slice.call(table.querySelectorAll('thead th'));
+    var i = headers.indexOf(th); if(i < 0) return;
+    var asc = !th.classList.contains('sort-asc');
+    headers.forEach(function(h){ h.classList.remove('sort-asc','sort-desc'); });
+    th.classList.add(asc ? 'sort-asc' : 'sort-desc');
+    var rows = [].slice.call(tbody.querySelectorAll('tr'));
+    rows.sort(function(a,b){
+      var av = (a.cells[i]?.textContent || '').trim().toLowerCase();
+      var bv = (b.cells[i]?.textContent || '').trim().toLowerCase();
+      var an = parseFloat(av.replace(/[^0-9.\-]/g,'')); var bn = parseFloat(bv.replace(/[^0-9.\-]/g,''));
+      if(!isNaN(an) && !isNaN(bn)) return asc ? an-bn : bn-an;
+      var ad = Date.parse(av); var bd = Date.parse(bv);
+      if(!isNaN(ad) && !isNaN(bd)) return asc ? ad-bd : bd-ad;
+      return asc ? av.localeCompare(bv) : bv.localeCompare(av);
+    });
+    rows.forEach(function(r){ tbody.appendChild(r); });
+  });
+})();
+</script>
+
+</body></html>
