@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Events at 506 — 506 Ramseur</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+  :root {
+    color-scheme: dark light;
+    --bg:#0b1220; --panel:#131c2d; --panel-2:#1a2438;
+    --border:rgba(148,163,184,0.10); --border-2:rgba(148,163,184,0.16);
+    --fg:#e8ecf3; --muted:#8a96a8; --muted-2:#5a6478;
+    --accent:#e07a5f; --accent-2:#eb9a86; --accent-soft:rgba(224,122,95,0.14);
+    --good:#22c55e; --good-soft:rgba(34,197,94,0.14);
+    --warn:#f59e0b; --warn-soft:rgba(245,158,11,0.14);
+    --critical:#ef4444; --critical-soft:rgba(239,68,68,0.14);
+    --neutral-soft:rgba(100,116,139,0.20);
+    --font-ui:"Manrope",ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+    --font-mono:"IBM Plex Mono",ui-monospace,"SFMono-Regular",Menlo,monospace;
+  }
+  :root[data-theme="light"] {
+    --bg:#f4f6fb; --panel:#ffffff; --panel-2:#f0f3fa;
+    --border:rgba(15,23,42,0.08); --border-2:rgba(15,23,42,0.14);
+    --fg:#0f1a2e; --muted:#556173; --muted-2:#8895a8;
+    --accent:#c2603f; --accent-2:#d68266; --accent-soft:rgba(194,96,63,0.10);
+  }
+  * { box-sizing: border-box; }
+  html, body { background: var(--bg); color: var(--fg); }
+  body { margin: 0; font-family: var(--font-ui); font-size: 13.5px; line-height: 1.42; padding: 16px 20px 32px; }
+  .wrap { max-width: 1440px; margin: 0 auto; }
+  header { display: grid; grid-template-columns: minmax(240px,1fr) auto minmax(240px,1fr);
+    align-items: center; padding: 4px 4px 14px; border-bottom: 1px solid var(--border); margin-bottom: 14px; }
+  .brand { display: flex; align-items: baseline; gap: 12px; }
+  .brand-mark { font-weight: 800; font-size: 18px; letter-spacing: 0.02em; color: var(--fg); }
+  .brand-mark::before { content:""; display: inline-block; width: 5px; height: 20px;
+    background: var(--accent); vertical-align: -3px; margin-right: 10px; border-radius: 1px; }
+  .brand-sub { font-size: 11px; color: var(--muted); letter-spacing: 0.06em; text-transform: uppercase; }
+  .title { text-align: center; font-size: 12px; letter-spacing: 0.24em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+  .meta { display: flex; align-items: center; justify-content: flex-end; gap: 12px; font-size: 11.5px; color: var(--muted); }
+  .live { display: inline-flex; align-items: center; gap: 6px; padding: 2px 7px;
+    border: 1px solid var(--good); color: var(--good); border-radius: 3px;
+    font-size: 9.5px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; }
+  .live::before { content: ""; width: 5px; height: 5px; border-radius: 50%; background: var(--good); }
+  .meta-date { font-family: var(--font-mono); font-size: 11.5px; color: var(--fg); }
+  .back { color: var(--muted); text-decoration: none; font-size: 11.5px;
+    border-right: 1px solid var(--border-2); padding-right: 12px; margin-right: 2px; }
+  .back:hover { color: var(--accent); }
+
+  .grid { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 12px; }
+  .row1 .card { grid-column: span 4; }
+  .row2 .card.upcoming { grid-column: span 7; }
+  .row2 .card.revmix   { grid-column: span 5; }
+  .row3 .card.funnel   { grid-column: span 3; }
+  .row3 .card.activity { grid-column: span 6; }
+  .row3 .card.pbs      { grid-column: span 3; }
+  .row { display: contents; }
+
+  .card { background: var(--panel); border: 1px solid var(--border); border-radius: 6px;
+    padding: 14px 16px 16px; display: flex; flex-direction: column; min-width: 0; }
+  .card-head { margin-bottom: 10px; }
+  .card-title { font-size: 10.5px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--fg); }
+  .card-sub { font-size: 10.5px; color: var(--muted-2); margin-top: 3px; font-style: italic; }
+
+  .hero { display: flex; align-items: baseline; gap: 10px; margin-top: 2px; }
+  .hero-num { font-size: clamp(2rem, 4.2vw, 3rem); font-weight: 700;
+    letter-spacing: -0.025em; line-height: 1; font-variant-numeric: tabular-nums; color: var(--fg); }
+  .hero-unit { font-size: 10px; font-weight: 700; letter-spacing: 0.12em;
+    text-transform: uppercase; color: var(--muted); padding-bottom: 4px; }
+  .delta { display: inline-flex; align-items: center; gap: 4px; padding: 2px 7px; border-radius: 3px;
+    font-size: 10.5px; font-weight: 600; font-variant-numeric: tabular-nums; }
+  .delta.up { color: var(--good); background: var(--good-soft); }
+  .delta.down { color: var(--critical); background: var(--critical-soft); }
+  .delta.up::before { content:"▲"; font-size: 8px; margin-right: 2px; }
+  .delta.down::before { content:"▼"; font-size: 8px; margin-right: 2px; }
+  .hero-ctx { margin-top: 10px; font-size: 11.5px; color: var(--muted);
+    display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font-variant-numeric: tabular-nums; }
+  .hero-ctx strong { color: var(--fg); }
+  .spark { margin-top: auto; padding-top: 12px; }
+  .spark svg { width: 100%; height: 38px; display: block; }
+
+  .src-inline { display: flex; flex-wrap: wrap; gap: 6px 10px; margin-top: 12px; padding: 0; list-style: none; }
+  .src-inline li { display: flex; align-items: center; gap: 6px;
+    font-size: 10.5px; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .src-inline .sw { width: 7px; height: 7px; border-radius: 2px; }
+  .src-inline b { color: var(--fg); font-weight: 700; }
+
+  .upc-table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+  .upc-table th { text-align: left; font-size: 10px; font-weight: 600;
+    color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em;
+    padding: 4px 8px 8px 0; border-bottom: 1px solid var(--border); }
+  .upc-table th.num { text-align: right; }
+  .upc-table td { padding: 7px 8px 7px 0; border-top: 1px solid var(--border);
+    font-size: 12px; color: var(--fg); }
+  .upc-table td.num { text-align: right; font-weight: 700; }
+  .upc-table tr:first-child td { border-top: none; }
+  .upc-table .date { color: var(--muted); font-family: var(--font-mono); font-size: 11px; }
+  .upc-table .type-pill { display: inline-block; padding: 1px 6px; border-radius: 3px;
+    font-size: 9px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; }
+  .type-pill.wedding { color: #f6a0bd; background: rgba(234,76,137,0.14); }
+  .type-pill.corp    { color: #98bbf7; background: rgba(91,141,239,0.16); }
+  .type-pill.private { color: #b7a4ee; background: rgba(126,87,194,0.18); }
+  .type-pill.non     { color: #98d6c5; background: rgba(129,178,154,0.20); }
+  .type-pill.other   { color: var(--muted); background: var(--neutral-soft); }
+
+  .revmix-list { display: flex; flex-direction: column; gap: 10px; margin-top: 4px; padding: 0; list-style: none; }
+  .revmix-row { display: grid; grid-template-columns: 84px 1fr auto; gap: 10px;
+    align-items: center; font-variant-numeric: tabular-nums; }
+  .revmix-row .rlabel { font-size: 10.5px; letter-spacing: 0.08em;
+    text-transform: uppercase; color: var(--muted); font-weight: 600; }
+  .revmix-row .rbar-wrap { height: 8px; background: var(--panel-2); border-radius: 4px; overflow: hidden; }
+  .revmix-row .rbar { height: 100%; }
+  .revmix-row .rval { font-size: 13px; font-weight: 700; color: var(--fg); }
+  .revmix-total { display: flex; justify-content: space-between; align-items: baseline;
+    padding-top: 10px; margin-top: 8px; border-top: 1px solid var(--border);
+    font-variant-numeric: tabular-nums; }
+  .revmix-total .lbl { font-size: 10.5px; letter-spacing: 0.08em;
+    text-transform: uppercase; color: var(--muted); font-weight: 600; }
+  .revmix-total .val { font-size: 20px; font-weight: 700; }
+
+  .funnel { display: flex; flex-direction: column; gap: 10px; }
+  .funnel-step { display: flex; flex-direction: column; gap: 3px; }
+  .funnel-lbl { display: flex; justify-content: space-between; align-items: baseline;
+    font-size: 10.5px; color: var(--muted); letter-spacing: 0.06em;
+    text-transform: uppercase; font-weight: 600; }
+  .funnel-num { color: var(--fg); font-size: 15px; font-weight: 700;
+    font-variant-numeric: tabular-nums; letter-spacing: -0.01em; }
+  .funnel-bar { height: 5px; background: var(--accent); border-radius: 3px; }
+  .funnel-conv { font-size: 10px; color: var(--muted-2); font-family: var(--font-mono);
+    margin: -1px 0 3px; text-align: right; }
+
+  .pbs-table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+  .pbs-table th { text-align: right; font-size: 10px; font-weight: 600;
+    color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em;
+    padding: 4px 0 8px; border-bottom: 1px solid var(--border); }
+  .pbs-table th:first-child { text-align: left; }
+  .pbs-table td { padding: 9px 0; border-top: 1px solid var(--border);
+    font-size: 12px; text-align: right; color: var(--fg); }
+  .pbs-table td:first-child { text-align: left; }
+  .pbs-table tr:first-child td { border-top: none; }
+  .pbs-src { display: inline-flex; align-items: center; gap: 7px; }
+  .pbs-src .dot { width: 7px; height: 7px; border-radius: 2px; }
+  .pbs-src .name { font-size: 10.5px; letter-spacing: 0.06em;
+    text-transform: uppercase; font-weight: 600; }
+  .num-muted { color: var(--muted-2); }
+  .num-good  { color: var(--good); font-weight: 700; }
+
+  .activity-wrap { overflow-x: auto; margin-top: -2px; }
+  .activity { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+  .activity th { text-align: left; font-size: 10px; font-weight: 600;
+    color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em;
+    padding: 4px 10px 8px 0; border-bottom: 1px solid var(--border); white-space: nowrap; }
+  .activity th.sortable { cursor: pointer; user-select: none; }
+  .activity th.sortable::after { content: " \2195"; opacity: 0.35; font-size: 9px; }
+  .activity td { padding: 7px 10px 7px 0; border-top: 1px solid var(--border);
+    font-size: 12px; color: var(--fg); vertical-align: middle; }
+  .activity tr:first-child td { border-top: none; }
+  .activity .name { font-weight: 600; }
+  .activity .date { color: var(--muted); font-family: var(--font-mono); font-size: 11px; }
+  .status-pill, .src-pill { display: inline-block; padding: 2px 7px; border-radius: 3px;
+    font-size: 9.5px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+    white-space: nowrap; }
+  .status-pill.won     { color: var(--good); background: var(--good-soft); }
+  .status-pill.pending { color: var(--warn); background: var(--warn-soft); }
+  .status-pill.proposal{ color: #98bbf7; background: rgba(91,141,239,0.18); }
+  .status-pill.tentative{ color: #b7a4ee; background: rgba(126,87,194,0.18); }
+  .status-pill.neutral { color: var(--muted); background: var(--neutral-soft); }
+  .status-pill.lost    { color: var(--critical); background: var(--critical-soft); }
+  .src-pill.google { color: #98bbf7; background: rgba(91,141,239,0.18); }
+  .src-pill.direct { color: #d7b58c; background: rgba(139,90,43,0.24); }
+  .src-pill.inbox  { color: #a7bccf; background: rgba(96,125,139,0.20); }
+  .src-pill.walkin { color: #b6c1d3; background: rgba(100,116,139,0.20); }
+  .src-pill.meta   { color: #b7a4ee; background: rgba(126,87,194,0.20); }
+  .src-pill.other  { color: var(--muted); background: var(--neutral-soft); }
+
+  footer { margin-top: 20px; padding-top: 12px; border-top: 1px solid var(--border);
+    display: flex; justify-content: space-between; align-items: center;
+    font-size: 10.5px; color: var(--muted-2); font-family: var(--font-mono); }
+
+  @media (max-width: 1100px) {
+    .row1 .card { grid-column: span 6; }
+    .row1 .card:nth-child(3) { grid-column: 1 / -1; }
+    .row2 .card.upcoming, .row2 .card.revmix { grid-column: 1 / -1; }
+    .row3 .card.funnel { grid-column: span 6; }
+    .row3 .card.pbs { grid-column: span 6; }
+    .row3 .card.activity { grid-column: 1 / -1; }
+  }
+  @media (max-width: 640px) {
+    body { padding: 12px 14px 20px; }
+    header { grid-template-columns: 1fr; row-gap: 8px; }
+    .title, .meta { text-align: left; justify-content: flex-start; }
+    .row1 .card, .row3 .card { grid-column: 1 / -1 !important; }
+    .hero-num { font-size: 2.2rem; }
+  }
+</style>
+</head><body>
+<div class="wrap">
+<header>
+  <div class="brand">
+    <div class="brand-mark">DBCO</div>
+    <div class="brand-sub">Durham Bottling Company</div>
+  </div>
+  <div class="title">Events at 506 &middot; Sales &amp; Attribution</div>
+  <div class="meta">
+    <a class="back" href="/">&larr; Portfolio</a>
+    <span class="meta-date">Sep 15, 2026</span>
+    <span class="live">Live</span>
+  </div>
+</header>
+
+<div class="grid">
+
+  <!-- ROW 1 -->
+  <div class="row row1">
+    <section class="card">
+      <div class="card-head">
+        <div class="card-title">Revenue Collected</div>
+        <div class="card-sub">September 1-15, 2026 &middot; cash-basis</div>
+      </div>
+      <div class="hero">
+        <div class="hero-num">$5,101</div>
+        <div class="hero-unit">Collected</div>
+      </div>
+      <div class="hero-ctx">
+        <span class="delta up">$266 &nbsp;+5.5%</span>
+        <span>vs Aug 2026</span>
+      </div>
+      <div class="spark"><svg viewBox="0 0 240 38" preserveAspectRatio="none"><defs><linearGradient id="spark-57580" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#e07a5f" stop-opacity=".32"/><stop offset="100%" stop-color="#e07a5f" stop-opacity="0"/></linearGradient></defs><path d="M0.0,34.0 L0.0,34.0 L240.0,8.0 L240,38 L0,38 Z" fill="url(#spark-57580)"/><polyline points="0.0,34.0 240.0,8.0" fill="none" stroke="#e07a5f" stroke-width="1.75" stroke-linejoin="round" stroke-linecap="round"/><circle cx="240.0" cy="8.0" r="2.8" fill="#e07a5f"/></svg></div>
+    </section>
+
+    <section class="card">
+      <div class="card-head">
+        <div class="card-title">Booked Events</div>
+        <div class="card-sub">Event-date in period &middot; non-lost bookings</div>
+      </div>
+      <div class="hero">
+        <div class="hero-num">3</div>
+        <div class="hero-unit">Events</div>
+      </div>
+      <div class="hero-ctx">
+        <span class="delta up">+1 vs prev</span>
+      </div>
+      <ul class="src-inline"><li><span class="sw" style="background:#ea4c89"></span><b>1</b> Wedding</li></ul>
+    </section>
+
+    <section class="card">
+      <div class="card-head">
+        <div class="card-title">New Leads</div>
+        <div class="card-sub">Created in period</div>
+      </div>
+      <div class="hero">
+        <div class="hero-num">37</div>
+        <div class="hero-unit">Leads</div>
+      </div>
+      <div class="hero-ctx">
+        <span class="delta up">+11 vs prev</span>
+        <span>5% turned into a proposal</span>
+      </div>
+      <ul class="src-inline"><li><span class="sw" style="background:#5b8def"></span>Google <b>18</b></li>
+<li><span class="sw" style="background:#7e57c2"></span>Meta <b>1</b></li>
+<li><span class="sw" style="background:#8b5a2b"></span>Tripleseat Direct <b>18</b></li></ul>
+    </section>
+  </div>
+
+  <!-- ROW 2 -->
+  <div class="row row2">
+    <section class="card upcoming">
+      <div class="card-head">
+        <div class="card-title">Upcoming Events &mdash; next 90 days</div>
+        <div class="card-sub">Definite &amp; Closed bookings by event date</div>
+      </div>
+      <div style="overflow-x:auto">
+      <table class="upc-table">
+        <thead><tr>
+          <th>Date</th><th>Client / Event</th><th>Type</th>
+          <th class="num">Grand Total</th><th class="num">Collected</th>
+        </tr></thead>
+        <tbody><tr><td colspan="5" style="padding:16px 0; text-align:center; color:var(--muted); font-style:italic;">No upcoming events in the next 90 days.</td></tr></tbody>
+      </table>
+      </div>
+    </section>
+
+    <section class="card revmix">
+      <div class="card-head">
+        <div class="card-title">Revenue Mix</div>
+        <div class="card-sub">September 1-15, 2026 &middot; payments received &middot; category split</div>
+      </div>
+      <ul class="revmix-list"><li class="revmix-row"><span class="rlabel">Space Fee</span><div class="rbar-wrap"><div class="rbar" style="width:44.8%; background:#e07a5f"></div></div><span class="rval">$5,101</span></li>
+<li class="revmix-row"><span class="rlabel">Food</span><div class="rbar-wrap"><div class="rbar" style="width:55.2%; background:#81b29a"></div></div><span class="rval">$6,275</span></li>
+<li class="revmix-row"><span class="rlabel">Bar</span><div class="rbar-wrap"><div class="rbar" style="width:0%; background:#f4a261"></div></div><span class="rval"><span class="num-muted">—</span></span></li>
+<li class="revmix-row"><span class="rlabel">Labor</span><div class="rbar-wrap"><div class="rbar" style="width:0%; background:#5b8def"></div></div><span class="rval"><span class="num-muted">—</span></span></li></ul>
+      <div class="revmix-total">
+        <span class="lbl">Collected</span>
+        <span class="val">$5,101</span>
+      </div>
+      <div style="font-size:10.5px; color:var(--muted-2); font-style:italic; margin-top:8px">
+        Bar and Labor categories not yet tracked in Tripleseat's payment split.
+      </div>
+    </section>
+  </div>
+
+  <!-- ROW 3 -->
+  <div class="row row3">
+    <section class="card funnel">
+      <div class="card-head">
+        <div class="card-title">Sales Funnel</div>
+        <div class="card-sub">September 1-15, 2026 &middot; lead &rarr; booked</div>
+      </div>
+      <div class="funnel-step"><div class="funnel-lbl"><span>New Leads</span><span class="funnel-num">37</span></div><div class="funnel-bar" style="width:100.0%; background:#e07a5f"></div></div>
+<div class="funnel-conv">5% converted</div>
+<div class="funnel-step"><div class="funnel-lbl"><span>Proposal Sent</span><span class="funnel-num">2</span></div><div class="funnel-bar" style="width:5.4%; background:#e07a5f; opacity:.75"></div></div>
+<div class="funnel-conv">150% converted</div>
+<div class="funnel-step"><div class="funnel-lbl"><span>Booked / Closed</span><span class="funnel-num">3</span></div><div class="funnel-bar" style="width:8.1%; background:var(--good)"></div></div>
+    </section>
+
+    <section class="card activity">
+      <div class="card-head">
+        <div class="card-title">Lead Activity</div>
+        <div class="card-sub">September 1-15, 2026 &middot; 37 records &middot; click a header to sort</div>
+      </div>
+      <div class="activity-wrap">
+      <table class="activity">
+        <thead><tr>
+          <th class="sortable">Client</th>
+          <th class="sortable">Book Date</th>
+          <th class="sortable">Status</th>
+          <th class="sortable">Platform Source</th>
+          <th class="sortable">Lead source</th>
+        </tr></thead>
+        <tbody><tr><td class="name">Tondarra Mcmillan</td><td class="date">Sep 14</td><td><span class="status-pill lost">Turned Down</span></td><td><span class="src-pill direct">Tripleseat Direct</span></td><td>CRM source: Durhambottling.com/events</td></tr>
+<tr><td class="name">shezeen ali</td><td class="date">Sep 14</td><td><span class="status-pill neutral">New</span></td><td><span class="src-pill google">Google</span></td><td>CRM source: Durhambottling.com/events</td></tr>
+<tr><td class="name">Nicole Pressley</td><td class="date">Sep 13</td><td><span class="status-pill neutral">New</span></td><td><span class="src-pill direct">Tripleseat Direct</span></td><td>CRM source: Durhambottling.com/events</td></tr>
+<tr><td class="name">Olivia Waldis</td><td class="date">Sep 13</td><td><span class="status-pill neutral">New</span></td><td><span class="src-pill google">Google</span></td><td>CRM source: Durhambottling.com/events</td></tr>
+<tr><td class="name">Tiffany Foster</td><td class="date">Sep 12</td><td><span class="status-pill neutral">New</span></td><td><span class="src-pill google">Google</span></td><td>CRM source: Durhambottling.com/events</td></tr>
+<tr><td class="name">Angel Whitehead</td><td class="date">Sep 12</td><td><span class="status-pill neutral">New</span></td><td><span class="src-pill direct">Tripleseat Direct</span></td><td>CRM source: Durhambottling.com/events</td></tr>
+<tr><td class="name">Muriah Bauer</td><td class="date">Sep 11</td><td><span class="status-pill neutral">New</span></td><td><span class="src-pill google">Google</span></td><td>CRM source: Durhambottling.com/events</td></tr>
+<tr><td class="name">Tincye Edwards</td><td class="date">Sep 11</td><td><span class="status-pill neutral">New</span></td><td><span class="src-pill google">Google</span></td><td>CRM source: Durhambottling.com/events</td></tr>
+<tr><td class="name">Andrea Cazares</td><td class="date">Sep 11</td><td><span class="status-pill neutral">New</span></td><td><span class="src-pill direct">Tripleseat Direct</span></td><td>CRM source: Durhambottling.com/events</td></tr>
+<tr><td class="name">Tyonda Love</td><td class="date">Sep 10</td><td><span class="status-pill neutral">New</span></td><td><span class="src-pill google">Google</span></td><td>CRM source: Durhambottling.com/events</td></tr>
+<tr><td class="name">Meldrina Jeantinor</td><td class="date">Sep 10</td><td><span class="status-pill neutral">New</span></td><td><span class="src-pill google">Google</span></td><td>CRM source: Durhambottling.com/events</td></tr>
+<tr><td class="name">Sandy Flores</td><td class="date">Sep 9</td><td><span class="status-pill lost">Turned Down</span></td><td><span class="src-pill google">Google</span></td><td>CRM source: Durhambottling.com/events</td></tr>
+<tr><td class="name">Tricia Howard</td><td class="date">Sep 8</td><td><span class="status-pill proposal">Proposal Sent</span></td><td><span class="src-pill google">Google</span></td><td>CRM source: Durhambottling.com/events</td></tr>
+<tr><td class="name">Kaleb Hill</td><td class="date">Sep 8</td><td><span class="status-pill neutral">New</span></td><td><span class="src-pill google">Google</span></td><td>CRM source: Durhambottling.com/events</td></tr>
+<tr><td class="name">Valerie Rutledge</td><td class="date">Sep 8</td><td><span class="status-pill neutral">New</span></td><td><span class="src-pill direct">Tripleseat Direct</span></td><td>CRM source: Durhambottling.com/events</td></tr>
+<tr><td class="name">Latasha Ferrell</td><td class="date">Sep 6</td><td><span class="status-pill neutral">New</span></td><td><span class="src-pill google">Google</span></td><td>CRM source: Durhambottling.com/events</td></tr>
+<tr><td class="name">Gerardo Cortez</td><td class="date">Sep 6</td><td><span class="status-pill neutral">New</span></td><td><span class="src-pill google">Google</span></td><td>CRM source: Durhambottling.com/events</td></tr>
+<tr><td class="name">Jamaica Paul</td><td class="date">Sep 6</td><td><span class="status-pill neutral">New</span></td><td><span class="src-pill direct">Tripleseat Direct</span></td><td>CRM source: Durhambottling.com/events</td></tr>
+<tr><td class="name">Evangeline Mitchell</td><td class="date">Sep 5</td><td><span class="status-pill lost">Turned Down</span></td><td><span class="src-pill direct">Tripleseat Direct</span></td><td>CRM source: Durhambottling.com/events</td></tr>
+<tr><td class="name">Brice Hudson</td><td class="date">Sep 5</td><td><span class="status-pill neutral">New</span></td><td><span class="src-pill google">Google</span></td><td>CRM source: Durhambottling.com/events</td></tr>
+<tr><td class="name">Ray Ball</td><td class="date">Sep 5</td><td><span class="status-pill neutral">New</span></td><td><span class="src-pill direct">Tripleseat Direct</span></td><td>CRM source: Durhambottling.com/events</td></tr>
+<tr><td class="name">Bentley Ball</td><td class="date">Sep 5</td><td><span class="status-pill neutral">New</span></td><td><span class="src-pill direct">Tripleseat Direct</span></td><td>CRM source: Durhambottling.com/events</td></tr>
+<tr><td class="name">Donita Felton</td><td class="date">Sep 4</td><td><span class="status-pill lost">Turned Down</span></td><td><span class="src-pill direct">Tripleseat Direct</span></td><td>CRM source: Durhambottling.com/events</td></tr>
+<tr><td class="name">Nyya Archer</td><td class="date">Sep 4</td><td><span class="status-pill neutral">New</span></td><td><span class="src-pill google">Google</span></td><td>CRM source: Durhambottling.com/events</td></tr>
+<tr><td class="name">Jessica Mobley</td><td class="date">Sep 4</td><td><span class="status-pill proposal">Proposal Sent</span></td><td><span class="src-pill google">Google</span></td><td>CRM source: Durhambottling.com/events</td></tr>
+<tr><td class="name">Stephanie Flood</td><td class="date">Sep 4</td><td><span class="status-pill neutral">New</span></td><td><span class="src-pill direct">Tripleseat Direct</span></td><td>CRM source: Durhambottling.com/events</td></tr>
+<tr><td class="name">Hope McCall</td><td class="date">Sep 4</td><td><span class="status-pill lost">Turned Down</span></td><td><span class="src-pill direct">Tripleseat Direct</span></td><td>CRM source: Durhambottling.com/events</td></tr>
+<tr><td class="name">Courtney Perry</td><td class="date">Sep 3</td><td><span class="status-pill lost">Turned Down</span></td><td><span class="src-pill direct">Tripleseat Direct</span></td><td>CRM source: Durhambottling.com/events</td></tr>
+<tr><td class="name">Heather Armstrong</td><td class="date">Sep 3</td><td><span class="status-pill neutral">New</span></td><td><span class="src-pill direct">Tripleseat Direct</span></td><td>CRM source: Durhambottling.com/events</td></tr>
+<tr><td class="name">Myreall Thapa</td><td class="date">Sep 3</td><td><span class="status-pill lost">Turned Down</span></td><td><span class="src-pill google">Google</span></td><td>CRM source: Durhambottling.com/events</td></tr>
+<tr><td class="name">Arizona Greene</td><td class="date">Sep 2</td><td><span class="status-pill lost">Turned Down</span></td><td><span class="src-pill direct">Tripleseat Direct</span></td><td>CRM source: Durhambottling.com/events</td></tr>
+<tr><td class="name">Juliana Parker</td><td class="date">Sep 2</td><td><span class="status-pill neutral">New</span></td><td><span class="src-pill google">Google</span></td><td>CRM source: Durhambottling.com/events</td></tr>
+<tr><td class="name">Kayla Barnes</td><td class="date">Sep 2</td><td><span class="status-pill neutral">Contacted</span></td><td><span class="src-pill direct">Tripleseat Direct</span></td><td>CRM source: Durhambottling.com/events</td></tr>
+<tr><td class="name">Syerra Lennon</td><td class="date">Sep 1</td><td><span class="status-pill neutral">New</span></td><td><span class="src-pill google">Google</span></td><td>CRM source: Durhambottling.com/events</td></tr>
+<tr><td class="name">Erica Green</td><td class="date">Sep 1</td><td><span class="status-pill neutral">New</span></td><td><span class="src-pill direct">Tripleseat Direct</span></td><td>CRM source: Durhambottling.com/events</td></tr>
+<tr><td class="name">Brent Swallow</td><td class="date">Sep 1</td><td><span class="status-pill won">Closed/Won</span></td><td><span class="src-pill meta">Meta</span></td><td>Rich's Calendly — tour on Sep 11</td></tr>
+<tr><td class="name">Arizona Greene</td><td class="date">Sep 1</td><td><span class="status-pill neutral">New</span></td><td><span class="src-pill direct">Tripleseat Direct</span></td><td>CRM source: Durhambottling.com/events</td></tr></tbody>
+      </table>
+      </div>
+    </section>
+
+    <section class="card pbs">
+      <div class="card-head">
+        <div class="card-title">Performance By Source</div>
+        <div class="card-sub">September 1-15, 2026 &middot; spend &middot; leads &middot; sales</div>
+      </div>
+      <table class="pbs-table">
+        <thead><tr><th>Source</th><th>Spend</th><th>Leads</th><th>Sales</th></tr></thead>
+        <tbody><tr><td><span class="pbs-src"><span class="dot" style="background:#5b8def"></span><span class="name">Google</span></span></td><td>$576</td><td>18</td><td>0</td></tr>
+<tr><td><span class="pbs-src"><span class="dot" style="background:#7e57c2"></span><span class="name">Meta</span></span></td><td><span class="num-muted">—</span></td><td>1</td><td><span class="num-good">1</span></td></tr>
+<tr><td><span class="pbs-src"><span class="dot" style="background:#8b5a2b"></span><span class="name">Tripleseat Direct</span></span></td><td><span class="num-muted">—</span></td><td>18</td><td>0</td></tr>
+<tr><td><span class="pbs-src"><span class="dot" style="background:#607d8b"></span><span class="name">Inbox</span></span></td><td><span class="num-muted">—</span></td><td>0</td><td>0</td></tr>
+<tr><td><span class="pbs-src"><span class="dot" style="background:#4a4a4a"></span><span class="name">Walk-In</span></span></td><td><span class="num-muted">—</span></td><td>0</td><td>0</td></tr></tbody>
+      </table>
+      <div style="margin-top:12px; padding-top:10px; border-top:1px solid var(--border); display:flex; justify-content:space-between; font-size:11px; font-variant-numeric:tabular-nums;"><span style="color:var(--muted); letter-spacing:0.06em; text-transform:uppercase; font-weight:600;">Google ROAS</span><span style="color:var(--fg); font-weight:700;">8.9&times;</span></div>
+    </section>
+  </div>
+</div>
+
+<footer>
+  <span>Source: Tripleseat &middot; payment_history (Stripe + delta) &middot; Windsor &middot; Google Ads</span>
+  <span>Refreshed 05:23 AM ET</span>
+</footer>
+</div>
+
+<script>
+(function(){
+  document.querySelectorAll('table.activity').forEach(function(tbl){
+    var ths = tbl.querySelectorAll('th.sortable');
+    ths.forEach(function(th, i){
+      th.addEventListener('click', function(){
+        var tbody = tbl.tBodies[0];
+        var rows = Array.from(tbody.rows);
+        var asc = th.dataset.sort !== 'asc';
+        rows.sort(function(a,b){
+          var av = a.cells[i].innerText.trim().toLowerCase();
+          var bv = b.cells[i].innerText.trim().toLowerCase();
+          var an = parseFloat(av.replace(/[^0-9.\-]/g,''));
+          var bn = parseFloat(bv.replace(/[^0-9.\-]/g,''));
+          if (!isNaN(an) && !isNaN(bn)) return asc ? an-bn : bn-an;
+          return asc ? av.localeCompare(bv) : bv.localeCompare(av);
+        });
+        rows.forEach(function(r){ tbody.appendChild(r); });
+        ths.forEach(function(x){ delete x.dataset.sort; });
+        th.dataset.sort = asc ? 'asc' : 'desc';
+      });
+    });
+  });
+})();
+</script>
+</body></html>
